@@ -121,6 +121,17 @@ function prerenderOgPlugin(isSaas: boolean): PluginOption {
         return;
       }
       const distDir = path.resolve(__dirname, "dist");
+      // On a clean tree this hook can run before index.html has been written, which made the
+      // first build on a fresh checkout fail and the second one succeed - the difference being
+      // the stale file left behind. Social-preview pages are not worth failing a build for.
+      try {
+        await fs.access(path.join(distDir, "index.html"));
+      } catch {
+        console.warn(
+          "[prerender-og] dist/index.html not written yet; skipping OG prerender.",
+        );
+        return;
+      }
       const count = await prerenderOg({ distDir, manifest, ogBase, baseHref });
       console.log(
         `[prerender-og] wrote ${count} prerendered route pages` +
