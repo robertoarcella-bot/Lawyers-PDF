@@ -137,6 +137,20 @@ Modificare e aggiungere modelli
   I modelli sono un punto di partenza redazionale: la responsabilita'
   del contenuto dell'attestazione resta del difensore che la firma.
 
+DOVE VIVONO IMPOSTAZIONI E REGISTRI
+-----------------------------------
+In una cartella fissa del tuo profilo:
+
+  %LOCALAPPDATA%\Lawyers-PDF
+
+Contiene configs\ (impostazioni), logs\ (registri), customFiles\ e
+pipeline\. La posizione non dipende da dove si avvia il programma: e' la
+stessa che tu apra l'applicazione dal desktop, da una cartella qualsiasi o
+con un doppio clic su un PDF.
+
+Per rimuovere ogni traccia dal computer: cancella la cartella del programma
+e quella qui sopra.
+
 NOTE
 ----
 - Porta 8080. Se occupata, il server non parte: liberala oppure

@@ -243,7 +243,10 @@ export const EXTENSION_TO_ENDPOINT: Record<string, Record<string, string>> = {
     csv: "pdf-to-csv",
     xlsx: "pdf-to-xlsx",
     txt: "pdf-to-text",
-    rtf: "pdf-to-text",
+    // RTF esce dallo stesso endpoint del testo, ma per produrlo serve LibreOffice: farlo dipendere
+    // da "pdf-to-text" lo mostrava disponibile su una macchina senza LibreOffice, e la conversione
+    // falliva con un errore 500. La disponibilita' va letta dal gruppo che ne porta la dipendenza.
+    rtf: "pdf-to-word",
     md: "pdf-to-markdown",
     html: "pdf-to-html",
     xml: "pdf-to-xml",

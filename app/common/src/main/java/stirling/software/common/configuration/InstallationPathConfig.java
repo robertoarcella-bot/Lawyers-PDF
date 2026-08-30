@@ -1,6 +1,7 @@
 package stirling.software.common.configuration;
 
 import java.io.File;
+import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,7 +72,39 @@ public class InstallationPathConfig {
             boolean hasTrailingSeparator = override.endsWith("/") || override.endsWith("\\");
             return hasTrailingSeparator ? override : override + File.separator;
         }
-        return "." + File.separator;
+        return defaultUserPath();
+    }
+
+    /**
+     * Where the state tree lives when nobody says otherwise.
+     *
+     * <p>The working directory is the wrong answer: launched from the file manager the process
+     * inherits the folder of the document that was double-clicked, so opening a PDF from the
+     * desktop would scatter logs/, configs/ and pipeline/ across the user's own folders. A fixed
+     * per-user location under the platform's application-data directory is both predictable and
+     * writable, whatever the program was started from.
+     */
+    private static String defaultUserPath() {
+        String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+        String home = System.getProperty("user.home", ".");
+        File base;
+        if (os.contains("win")) {
+            String localAppData = System.getenv("LOCALAPPDATA");
+            base =
+                    localAppData == null || localAppData.isBlank()
+                            ? new File(home, "AppData" + File.separator + "Local")
+                            : new File(localAppData);
+            base = new File(base, "Lawyers-PDF");
+        } else if (os.contains("mac")) {
+            base = new File(home, "Library/Application Support/Lawyers-PDF");
+        } else {
+            String dataHome = System.getenv("XDG_DATA_HOME");
+            base =
+                    dataHome == null || dataHome.isBlank()
+                            ? new File(home, ".local/share/lawyers-pdf")
+                            : new File(dataHome, "lawyers-pdf");
+        }
+        return base.getAbsolutePath() + File.separator;
     }
 
     public static String getPath() {

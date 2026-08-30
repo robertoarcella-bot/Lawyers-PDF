@@ -57,12 +57,16 @@ jobs:
           done
           iconutil -c icns icona.iconset -o lawyers-pdf.icns
 
-      - name: jpackage
+      # In due passi, non uno. Su Apple Silicon ogni binario deve portare almeno una firma
+      # ad-hoc: senza, il sistema termina il processo appena parte. jpackage non la applica
+      # quando non gli si indica un'identita', quindi si costruisce prima l'applicazione, la si
+      # firma, e solo allora la si impacchetta nel disco.
+      - name: jpackage - immagine dell'applicazione
         run: |
-          mkdir -p jp-input dist
+          mkdir -p jp-input immagine dist
           cp app/core/build/libs/stirling-pdf-*.jar jp-input/
           NOME_JAR=$(basename $(ls jp-input/*.jar))
-          jpackage --type dmg \
+          jpackage --type app-image \
             --name "Lawyers-PDF" \
             --app-version "${{ inputs.versione }}" \
             --vendor "Avv. Roberto Arcella" \
@@ -72,6 +76,20 @@ jobs:
             --icon lawyers-pdf.icns \
             --java-options "-DBROWSER_OPEN=true" \
             --java-options "-Xmx2g" \
+            --dest immagine
+
+      - name: Firma ad-hoc
+        run: |
+          codesign --force --deep --sign - "immagine/Lawyers-PDF.app"
+          codesign --verify --deep --verbose=2 "immagine/Lawyers-PDF.app"
+
+      - name: jpackage - disco
+        run: |
+          jpackage --type dmg \
+            --name "Lawyers-PDF" \
+            --app-version "${{ inputs.versione }}" \
+            --vendor "Avv. Roberto Arcella" \
+            --app-image "immagine/Lawyers-PDF.app" \
             --dest dist
           mv "$(ls dist/*.dmg | head -1)" "dist/Lawyers-PDF-${{ inputs.versione }}-macos-arm64.dmg"
 
