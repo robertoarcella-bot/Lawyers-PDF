@@ -42,6 +42,7 @@ Le release contengono:
 | --- | --- |
 | `Lawyers-PDF-<versione>-windows-x64-setup.exe` | **Programma di installazione.** Installa per il solo utente corrente (nessun amministratore), con voce nel menu Start, disinstallazione e associazione ai PDF opzionale. |
 | `Lawyers-PDF-<versione>-windows-x64.zip` | Versione portabile: si estrae dove si vuole, anche su chiavetta. |
+| `Lawyers-PDF-<versione>-macos-arm64.dmg` | macOS su Apple Silicon. |
 | `Manuale-Lawyers-PDF.pdf` | Il manuale d'uso completo, con le immagini del programma. |
 
 Java **non** va installato: l'ambiente di esecuzione è incorporato nel pacchetto.
