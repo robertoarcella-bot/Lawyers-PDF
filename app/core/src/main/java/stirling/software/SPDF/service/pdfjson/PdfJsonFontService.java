@@ -2,6 +2,8 @@ package stirling.software.SPDF.service.pdfjson;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Locale;
 
@@ -325,6 +327,17 @@ public class PdfJsonFontService {
     private boolean isCommandAvailable(String command) {
         if (command == null || command.isBlank()) {
             return false;
+        }
+        // A full path answers the question by itself. Windows' `where` only searches the PATH by
+        // name and reports "not found" for a path, so a converter configured with its absolute
+        // location - the normal way to point at an interpreter outside the PATH - looked missing.
+        try {
+            Path percorso = Path.of(command);
+            if (percorso.isAbsolute() && Files.isExecutable(percorso)) {
+                return true;
+            }
+        } catch (InvalidPathException e) {
+            // Not a path: fall through to the PATH lookup below.
         }
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();

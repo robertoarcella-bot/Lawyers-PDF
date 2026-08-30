@@ -1,5 +1,6 @@
 package stirling.software.SPDF.service;
 
+import java.awt.geom.GeneralPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType3Font;
+import org.apache.pdfbox.pdmodel.font.PDVectorFont;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -397,7 +399,12 @@ public class PdfJsonFallbackFontService {
         }
         try {
             font.encode(text);
-            return true;
+            // Encoding is only half the question. A font embedded in a PDF is nearly always a
+            // subset: its character map still covers the whole alphabet, but only the glyphs the
+            // document actually used carry an outline. On encode() alone the font answers "yes"
+            // for a letter it would then draw as nothing - which is how edited text lost
+            // characters while the text layer still read correctly.
+            return hasOutlines(font, text);
         } catch (IOException | IllegalArgumentException | UnsupportedOperationException ex) {
             // Only log at debug level to reduce verbosity - summary is logged elsewhere
             log.debug(
@@ -408,6 +415,62 @@ public class PdfJsonFallbackFontService {
                     ex.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Whether every visible character of the text has a glyph with an actual outline in the font.
+     *
+     * <p>Whitespace is exempt: a blank glyph is what a space is supposed to be. Fonts whose glyphs
+     * cannot be inspected are given the benefit of the doubt, so an unreadable font never turns
+     * into a wholesale fallback.
+     */
+    private boolean hasOutlines(PDFont font, String text) {
+        if (!(font instanceof PDVectorFont vectorFont)) {
+            return true;
+        }
+        try {
+            for (int offset = 0; offset < text.length(); ) {
+                int codePoint = text.codePointAt(offset);
+                offset += Character.charCount(codePoint);
+                if (Character.isWhitespace(codePoint)) {
+                    continue;
+                }
+                byte[] encoded = font.encode(new String(Character.toChars(codePoint)));
+                Integer code = singleCode(font, encoded);
+                if (code == null) {
+                    continue;
+                }
+                GeneralPath path = vectorFont.getPath(code);
+                if (path == null || path.getPathIterator(null).isDone()) {
+                    log.debug(
+                            "[FONT-DEBUG] Font {} maps U+{} but has no outline for it",
+                            font.getName(),
+                            Integer.toHexString(codePoint).toUpperCase(Locale.ROOT));
+                    return false;
+                }
+            }
+            return true;
+        } catch (IOException | RuntimeException ex) {
+            log.debug(
+                    "[FONT-DEBUG] Could not inspect the glyphs of font {}: {}",
+                    font.getName(),
+                    ex.getMessage());
+            return true;
+        }
+    }
+
+    /** The code a single character was encoded to: one byte for simple fonts, two for composite. */
+    private static Integer singleCode(PDFont font, byte[] encoded) {
+        if (encoded == null) {
+            return null;
+        }
+        if (encoded.length == 1) {
+            return encoded[0] & 0xFF;
+        }
+        if (encoded.length == 2 && font instanceof PDType0Font) {
+            return ((encoded[0] & 0xFF) << 8) | (encoded[1] & 0xFF);
+        }
+        return null;
     }
 
     /**

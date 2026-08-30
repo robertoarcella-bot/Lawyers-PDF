@@ -111,8 +111,6 @@ export function useTranslatedToolCatalog(): TranslatedToolCatalog {
         supportsAutomate: false,
         automationSettings: null,
         versionStatus: "alpha",
-        // Alpha upstream and broken here: /api/v1/convert/pdf/text-editor answers 500.
-        hiddenFromToolList: true,
       },
       multiTool: {
         icon: (

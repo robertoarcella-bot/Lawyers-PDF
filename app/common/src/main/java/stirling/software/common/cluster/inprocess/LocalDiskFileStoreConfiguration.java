@@ -1,5 +1,7 @@
 package stirling.software.common.cluster.inprocess;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,7 +25,20 @@ public class LocalDiskFileStoreConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public FileStore fileStore(@Value("${stirling.tempDir:/tmp/stirling-files}") String tempDir) {
-        return new LocalDiskFileStore(tempDir);
+    public FileStore fileStore(@Value("${stirling.tempDir:}") String tempDir) {
+        return new LocalDiskFileStore(
+                tempDir == null || tempDir.isBlank() ? defaultStoreDirectory() : tempDir);
+    }
+
+    /**
+     * The system temporary directory, not a hard-coded {@code /tmp}.
+     *
+     * <p>A leading slash means "the root of the current drive" on Windows, so the store used to
+     * land in {@code C:\tmp} - or fail outright, when the program had been started from a folder on
+     * a virtual drive such as a cloud-sync mount, whose root refuses new directories. Every job
+     * that stages a file through the store died there with a 500.
+     */
+    private static String defaultStoreDirectory() {
+        return new File(System.getProperty("java.io.tmpdir"), "stirling-files").getPath();
     }
 }
