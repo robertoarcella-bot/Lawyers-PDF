@@ -1,0 +1,203 @@
+================================================================================
+LAWYERS-PDF
+Licenza d'uso e avvertenze di responsabilita'
+Versione 1.0 - 30 agosto 2026
+================================================================================
+
+BOZZA DA VALIDARE. Questo testo e' stato predisposto come schema di partenza.
+Prima di distribuire il software a terzi, va riletto e adattato da chi se ne
+assume la titolarita'.
+
+
+--------------------------------------------------------------------------------
+1. CHE COS'E' QUESTO SOFTWARE
+--------------------------------------------------------------------------------
+
+Lawyers-PDF e' un'opera derivata (fork) di Stirling PDF, software open source
+distribuito con licenza MIT.
+
+Alla base originaria sono state aggiunte funzioni destinate all'esercizio della
+professione forense in Italia, tra cui la generazione di attestazioni di
+conformita' da apporre ai documenti informatici.
+
+Il software funziona interamente in locale: non richiede registrazione, non
+prevede account, non trasmette i documenti trattati ad alcun server remoto.
+
+
+--------------------------------------------------------------------------------
+2. LICENZA DELL'OPERA ORIGINARIA
+--------------------------------------------------------------------------------
+
+La componente derivata da Stirling PDF resta soggetta alla licenza MIT, il cui
+testo integrale e' riprodotto qui di seguito in adempimento dell'obbligo di
+mantenere la nota di copyright e la nota di licenza in ogni copia:
+
+    MIT License
+
+    Copyright (c) 2025 Stirling PDF Inc.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+Questa build e' compilata nella sola configurazione "core", corrispondente alla
+parte del progetto originario rilasciata con licenza MIT. I moduli distribuiti
+dal titolare originario con licenza proprietaria non sono compilati ne' inclusi.
+
+
+--------------------------------------------------------------------------------
+3. LICENZA DELLE MODIFICHE
+--------------------------------------------------------------------------------
+
+Le modifiche e le aggiunte che compongono Lawyers-PDF sono rilasciate anch'esse
+con licenza MIT, alle medesime condizioni riprodotte al punto 2, con la
+sostituzione della nota di copyright con la seguente:
+
+    Copyright (c) 2026 Roberto Arcella
+
+Chi ridistribuisce il software, modificato o meno, deve mantenere entrambe le
+note di copyright e il presente documento.
+
+
+--------------------------------------------------------------------------------
+4. MARCHI
+--------------------------------------------------------------------------------
+
+"Stirling" e "Stirling PDF" sono segni distintivi di Stirling PDF Inc. La
+licenza MIT ha ad oggetto il codice e non attribuisce alcun diritto sui marchi;
+le condizioni d'uso pubblicate dal titolare riservano espressamente l'uso dei
+propri segni ("You may not use our marks without permission").
+
+Di conseguenza:
+
+  a) Lawyers-PDF non utilizza i segni distintivi, il logo, le grafiche di
+     marchio ne' la veste grafica identificativa di Stirling PDF Inc.: sono
+     stati integralmente sostituiti;
+
+  b) i riferimenti a Stirling PDF contenuti nel software e nella presente
+     licenza hanno finalita' esclusivamente descrittiva e di attribuzione,
+     essendo diretti a indicare l'opera da cui il programma deriva, come la
+     licenza MIT impone;
+
+  c) Lawyers-PDF non e' prodotto, sponsorizzato, approvato ne' in alcun modo
+     collegato a Stirling PDF Inc., che non presta alcuna assistenza ne'
+     garanzia in relazione a questa versione.
+
+Il nome "Lawyers-PDF" e il relativo logo non appartengono a Stirling PDF Inc.
+
+
+--------------------------------------------------------------------------------
+5. ASSENZA DI GARANZIA
+--------------------------------------------------------------------------------
+
+Il software e' fornito "cosi' com'e'" ("AS IS"), senza garanzia di alcun tipo,
+espressa o implicita, ivi comprese - a titolo meramente esemplificativo - le
+garanzie di commerciabilita', di idoneita' a uno scopo determinato, di assenza
+di vizi, di continuita' del funzionamento e di non violazione di diritti altrui.
+
+In particolare non e' garantito che:
+
+  - le elaborazioni sui file PDF avvengano senza errori, perdite o alterazioni;
+  - i testi delle attestazioni siano corretti, completi o aggiornati rispetto
+    alla normativa vigente al momento dell'uso;
+  - i riferimenti normativi richiamati nei modelli siano tuttora in vigore;
+  - il riconoscimento automatico dell'ufficio giudiziario e del numero di ruolo
+    generale produca risultati esatti.
+
+Il software non e' certificato ne' omologato da alcuna autorita' e non
+costituisce strumento validato per il deposito telematico degli atti.
+
+
+--------------------------------------------------------------------------------
+6. RESPONSABILITA' DELL'UTENTE
+--------------------------------------------------------------------------------
+
+L'uso del software avviene sotto l'esclusiva responsabilita' dell'utente.
+
+6.1 - Verifica dei risultati. L'utente e' tenuto a controllare ogni documento
+prodotto prima di utilizzarlo, depositarlo, notificarlo o trasmetterlo a terzi.
+I dati inseriti automaticamente dal programma sono proposte da verificare, non
+risultati certi.
+
+6.2 - Contenuto delle attestazioni. I modelli di attestazione di conformita'
+sono schemi redazionali. La conformita' di una copia a un originale e'
+attestata dal professionista che la sottoscrive, il quale ne assume la piena e
+personale responsabilita' - anche penale, ai sensi dell'art. 76 del d.P.R. 28
+dicembre 2000, n. 445, e delle norme in materia di falsita' in atti - e resta
+l'unico soggetto tenuto a verificare la corrispondenza tra la copia e
+l'originale detenuto, l'esattezza dei riferimenti normativi richiamati e
+l'idoneita' della formula al caso concreto.
+
+6.3 - Assenza di consulenza. Il software non fornisce consulenza legale. I testi
+proposti non sostituiscono la valutazione professionale e non costituiscono
+parere sulla validita' o sull'efficacia degli atti prodotti.
+
+6.4 - Conservazione dei dati. L'utente e' tenuto a mantenere copie di sicurezza
+dei documenti originali. Il programma opera sui file che gli vengono forniti e
+non garantisce la conservazione ne' il recupero dei dati.
+
+6.5 - Protezione dei dati personali. I documenti restano sul dispositivo
+dell'utente, che agisce quale titolare del trattamento dei dati in essi
+contenuti e resta l'unico responsabile del rispetto della disciplina in materia
+di protezione dei dati personali e del segreto professionale.
+
+
+--------------------------------------------------------------------------------
+7. ESCLUSIONE DI RESPONSABILITA'
+--------------------------------------------------------------------------------
+
+Nei limiti massimi consentiti dalla legge applicabile, l'autore delle modifiche
+e i titolari dei diritti sull'opera originaria non rispondono di alcun danno
+diretto, indiretto, incidentale, speciale, punitivo o consequenziale comunque
+derivante dall'uso o dall'impossibilita' di uso del software, ivi compresi -
+a titolo esemplificativo - la perdita o l'alterazione di dati e documenti, il
+mancato guadagno, il danno reputazionale, le decadenze processuali, le nullita'
+o le inefficacia di atti, le sanzioni e le spese di lite, e cio' anche qualora
+siano stati avvisati della possibilita' di tali danni.
+
+Resta ferma, in quanto inderogabile, la responsabilita' per dolo e per colpa
+grave, nonche' ogni altra responsabilita' che la legge applicabile non consenta
+di escludere o limitare. Ove una clausola del presente documento risulti nulla
+o inefficace, essa si intende sostituita di diritto dalla disciplina legale
+applicabile, restando valide le rimanenti.
+
+
+--------------------------------------------------------------------------------
+8. COMPONENTI DI TERZI
+--------------------------------------------------------------------------------
+
+Il software incorpora librerie di terze parti, ciascuna soggetta alla propria
+licenza. L'elenco e' consultabile nel file 3rdPartyLicenses.json distribuito
+con l'applicazione. Il runtime Java incluso e' distribuito secondo le condizioni
+del rispettivo fornitore.
+
+
+--------------------------------------------------------------------------------
+9. LEGGE APPLICABILE
+--------------------------------------------------------------------------------
+
+Il presente documento e' regolato dalla legge italiana. Per quanto non
+espressamente previsto si applicano la legge 22 aprile 1941, n. 633, il d.lgs.
+6 settembre 2005, n. 206, ove ricorrano i presupposti soggettivi, e le altre
+disposizioni vigenti in materia.
+
+
+================================================================================
+Utilizzando il software l'utente dichiara di aver letto e accettato quanto
+precede. Chi non intenda accettarne le condizioni e' tenuto a non utilizzarlo
+e a rimuoverlo.
+================================================================================

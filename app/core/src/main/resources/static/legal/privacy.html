@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lawyers-PDF — Informativa sul trattamento dei dati</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    color: #1c1f24;
+    background: #fdfdfc;
+  }
+  h1 { font-size: 1.6rem; color: #b0140f; margin-bottom: .3rem; }
+  .occhiello { color: #5b6068; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 2rem; }
+  .rilievo {
+    border-left: 3px solid #b0140f;
+    background: #fdf4f3;
+    padding: .8rem 1rem;
+    margin: 1.2rem 0;
+  }
+  ul { padding-left: 1.2rem; }
+  li { margin-bottom: .35rem; }
+  footer { margin-top: 3rem; font-size: .85rem; color: #5b6068; border-top: 1px solid #e3e5e8; padding-top: 1rem; }
+  a { color: #b0140f; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16181b; color: #e6e8ea; }
+    .rilievo { background: #2a1c1b; }
+    footer { border-color: #2c3035; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Informativa sul trattamento dei dati</h1>
+<p class="occhiello">Lawyers-PDF — versione 2.14.3</p>
+
+<div class="rilievo">
+  <p><strong>In una riga: i documenti non lasciano il computer.</strong> Lawyers-PDF non ha un
+  server remoto, non ha account, non raccoglie statistiche d'uso e non trasmette alcun contenuto.</p>
+</div>
+
+<h2>Come funziona il programma</h2>
+<p>Lawyers-PDF è un programma che si esegue sul computer dell'utente. Tecnicamente avvia un servizio
+in ascolto sull'indirizzo di <em>loopback</em> (<code>localhost</code>), quello che ogni macchina
+riserva a sé stessa e che non è raggiungibile dall'esterno. L'interfaccia che si vede è servita da
+quel servizio locale; le elaborazioni sui documenti avvengono lì.</p>
+
+<h2>Dove restano i documenti</h2>
+<ul>
+  <li>I file caricati nell'area di lavoro sono conservati nella <strong>memoria locale del browser</strong>
+  (IndexedDB), sul computer in uso. Restano disponibili tra una sessione e l'altra finché non
+  vengono rimossi dalla libreria.</li>
+  <li>Durante l'elaborazione il programma usa una <strong>cartella temporanea locale</strong>, che
+  viene ripulita al termine delle operazioni.</li>
+  <li>I file scaricati finiscono dove l'utente decide di salvarli.</li>
+</ul>
+<p>Su un computer condiviso è buona regola rimuovere dalla libreria i documenti riservati al termine
+del lavoro.</p>
+
+<h2>Il profilo del difensore</h2>
+<p>I dati inseriti nel profilo dello strumento «Attestazioni di conformità» — nome, codice fiscale,
+foro, studio, PEC, luogo — sono conservati <strong>soltanto nella memoria locale del browser</strong>
+su quel computer. Non vengono trasmessi ad alcun destinatario e non sono presenti nel programma
+distribuito, che arriva con il profilo vuoto.</p>
+
+<h2>Statistiche d'uso</h2>
+<p>Il programma da cui Lawyers-PDF deriva prevede una raccolta facoltativa di statistiche d'uso
+(PostHog e Scarf). In questa versione tali funzioni sono <strong>disattivate nella configurazione
+distribuita</strong> (<code>enableAnalytics: false</code>, <code>enablePosthog: false</code>,
+<code>enableScarf: false</code>) e non viene inviata alcuna informazione.</p>
+
+<h2>L'unica connessione verso l'esterno</h2>
+<p>Una sola funzione richiede la rete, e solo quando la si usa deliberatamente: la
+<strong>marca temporale</strong>. In quel caso il programma calcola l'impronta crittografica
+(SHA-256) del documento e invia <strong>soltanto quella</strong> all'autorità di marcatura scelta,
+secondo il protocollo RFC 3161. L'impronta è un numero dal quale il documento non è ricostruibile:
+il contenuto dell'atto non viene trasmesso.</p>
+<p>I servizi preconfigurati sono DigiCert, Sectigo, SSL.com, FreeTSA e MeSign. Il trattamento dei
+dati di connessione da parte di quei servizi è regolato dalle rispettive informative.</p>
+
+<h2>Cookie</h2>
+<p>Il programma non usa cookie di profilazione né strumenti di tracciamento. Utilizza la memoria
+locale del browser per fini esclusivamente tecnici: conservare i documenti dell'area di lavoro, le
+preferenze dell'interfaccia e il profilo del difensore.</p>
+
+<h2>Chi è titolare del trattamento</h2>
+<p>Non esistendo alcun servizio remoto, non vi è un fornitore che tratti dati per conto dell'utente.
+Il titolare del trattamento dei dati contenuti nei documenti lavorati è <strong>chi utilizza il
+programma</strong> — per l'avvocato, nell'esercizio della professione e con gli obblighi che ne
+derivano, compresi quelli di sicurezza dei dispositivi su cui i documenti risiedono.</p>
+
+<footer>
+  Lawyers-PDF è un fork di Stirling PDF distribuito con licenza MIT.
+  Il codice è pubblicato su <a href="https://github.com/robertoarcella-bot/Lawyers-PDF">github.com/robertoarcella-bot/Lawyers-PDF</a>.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+Lawyers-PDF 2.14.3 - build portabile
+=====================================
+
+Fork di Stirling PDF (licenza MIT) per lo studio legale.
+Vedi LICENZA.txt per attribuzioni, garanzie e responsabilita'.
+
+AVVIO
+-----
+Doppio click su Lawyers-PDF.exe.
+Il server parte in background e si apre il browser predefinito
+su http://localhost:8080
+
+Per chiudere: doppio click su "Arresta Lawyers-PDF.cmd".
+
+Nessuna installazione, nessun privilegio di amministratore,
+nessun account, nessuna registrazione.
+La cartella e' autonoma e spostabile (anche su chiavetta).
+
+CONTENUTO
+---------
+  Lawyers-PDF.exe                      launcher nativo
+  Arresta Lawyers-PDF.cmd              ferma il server
+  Associa i PDF a Lawyers-PDF.cmd      registra l'app per i file .pdf
+  Ripristina l'associazione dei PDF.cmd  annulla la registrazione
+  app\                                 server + interfaccia web (JAR)
+  runtime\                             Java 25 incorporato
+
+Java NON deve essere installato: il runtime e' incluso.
+
+APRIRE I PDF CON UN DOPPIO CLICK
+--------------------------------
+Esegui "Associa i PDF a Lawyers-PDF.cmd". Registra l'applicazione
+per il tipo di file .pdf e apre, se vuoi, la pagina delle app
+predefinite di Windows.
+
+L'ultimo passaggio resta a te, ed e' voluto da Windows: nessun
+programma puo' nominarsi predefinito da solo.
+
+  Impostazioni > App > App predefinite > Lawyers-PDF > .pdf
+
+  oppure: tasto destro su un PDF > Apri con > Scegli un'altra app
+          > Lawyers-PDF > "Usa sempre questa app"
+
+Da quel momento i file .pdf mostrano l'icona di Lawyers-PDF (foglio
+con il marchio) e il doppio click apre quel documento nel banco di
+lavoro:
+
+  - se Lawyers-PDF e' gia' in esecuzione, il documento compare nella
+    finestra aperta e non parte un secondo server;
+  - se non lo e', parte il server e il documento e' gia' caricato
+    quando si apre il browser.
+
+Puoi anche non renderlo predefinito: la registrazione aggiunge in
+ogni caso Lawyers-PDF alla voce "Apri con" del menu contestuale,
+lasciando Acrobat (o quello che usi) come programma abituale.
+
+Per tornare indietro: "Ripristina l'associazione dei PDF.cmd".
+
+I documenti restano sul computer: il file viene passato al server
+locale sull'interfaccia di loopback, che rifiuta qualunque chiamata
+non provenga da questa macchina.
+
+COSA NON C'E' (ed e' strutturale, non una impostazione)
+--------------------------------------------------------
+Compilata con STIRLING_FLAVOR=core (DISABLE_ADDITIONAL_FEATURES=true):
+il modulo proprietario non viene compilato ne' incluso.
+Verificato: zero classi stirling/software/proprietary nel JAR.
+
+1. Registrazione e login
+   Nel codice: enableLogin = flag_configurazione && userService != null.
+   userService sta nel modulo proprietario, che qui non e' caricato:
+   quindi enableLogin e' SEMPRE false, qualunque cosa dica il file di
+   configurazione. Nessun account, nessuna schermata di accesso.
+   Confermato a runtime: enableLogin=false, premiumEnabled=false.
+
+2. Policies / Processor (le automazioni a pagamento)
+   Categorie: ingestion, security, classification, compliance,
+   routing, retention. Non presenti.
+
+3. Fatturazione a consumo, crediti, limiti d'uso, team, SSO.
+
+Tutto lavora in locale. Nessun documento lascia il computer.
+
+ATTESTAZIONI DI CONFORMITA'
+---------------------------
+Nel menu degli strumenti (sezione firme) c'e' "Attestazioni di
+conformita'". Seleziona i documenti nell'ordine in cui devono
+comparire, scegli il modello, compila i campi e genera: il testo
+viene composto e aggiunto come pagina finale.
+
+Modelli inclusi:
+  - art. 196-octies disp. att. c.p.c.   copie da fascicolo informatico
+                                        o da comunicazioni telematiche
+                                        di cancelleria / UNEP
+  - art. 196-novies co. 1               deposito telematico di copia
+                                        di atto analogico detenuto
+  - art. 196-novies co. 2               espropriazione forzata:
+                                        iscrizione a ruolo, artt. 518
+                                        co. 6, 543 co. 4, 557 co. 2
+  - art. 196-decies                     trasmissione all'ufficiale
+                                        giudiziario
+  - richiesta di notificazione          preceduta dalla dichiarazione
+                                        ex art. 137 ult. co. c.p.c.
+  - processo tributario                 art. 25-bis d.lgs. 546/1992
+                                        fino al 31.12.2026, poi art. 72
+                                        d.lgs. 175/2024: il riferimento
+                                        e' scelto in base alla data
+                                        dell'attestazione
+  - art. 111-ter c.p.p.                 processo penale telematico
+  - duplicato informatico               dichiarazione ex art. 23-bis
+                                        co. 1 CAD
+  - art. 23 CAD                         copia analogica di documento
+                                        informatico
+
+Profilo difensore
+  Pulsante "Profilo difensore" nello strumento. Nome, C.F., foro,
+  studio, PEC e luogo. Il nome compare in calce all'attestazione.
+  Precompilato con i dati dell'Avv. Roberto Arcella, modificabile.
+  Salvato solo su questo computer.
+
+Piu' documenti
+  Selezionando piu' file, di default vengono uniti in un unico PDF
+  con una sola attestazione che li elenca numerati. Per ciascun file
+  c'e' un campo in cui descriverne il contenuto: la descrizione
+  compare accanto al nome nell'elenco. Disattivando l'unione, ogni
+  documento riceve la propria attestazione separata.
+  L'unione non rimuove le firme digitali dei documenti.
+
+Modificare e aggiungere modelli
+  Pulsante "Modelli". Si possono cambiare titolo e testo di quelli
+  inclusi (con "Ripristina originale" per tornare indietro) e crearne
+  di nuovi. Nel testo si usano segnaposto tra doppie graffe:
+  {{difensore}} {{codiceFiscale}} {{foro}} {{studio}} {{pec}}
+  {{luogo}} {{data}} {{elencoAtti}} piu' i campi del modello
+  ({{parte}}, {{ufficio}}, {{rg}}, {{destinatari}}, {{note}}).
+
+  I modelli sono un punto di partenza redazionale: la responsabilita'
+  del contenuto dell'attestazione resta del difensore che la firma.
+
+NOTE
+----
+- Porta 8080. Se occupata, il server non parte: liberala oppure
+  modifica settings.yml nella cartella di configurazione creata
+  al primo avvio.
+- L'eseguibile non e' firmato: al primo avvio Windows SmartScreen
+  puo' chiedere conferma ("Ulteriori informazioni" -> "Esegui
+  comunque").
+
+LICENZA
+-------
+Questa build e' interamente MIT: backend core + frontend core.
+Il codice sotto licenza proprietaria Stirling (app/proprietary,
+frontend/editor/src/proprietary, src/desktop, src/saas) non e'
+compilato ne' distribuito qui.
+
+Lawyers-PDF non e' un prodotto di Stirling PDF Inc. e non e' da essa
+approvato o sostenuto. I marchi Stirling appartengono ai rispettivi
+titolari.
+
+Sorgenti della build: C:\SPDF-build\Stirling-PDF
+(la copia in ..\Stirling-PDF su questo disco e' un'istantanea
+anteriore alla rinomina in Lawyers-PDF)

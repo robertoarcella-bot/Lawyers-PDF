@@ -1,0 +1,92 @@
+# Builds the macOS disk image, which cannot be produced on Windows: jpackage only emits the
+# format of the system it runs on. Started by hand, and attaches the .dmg to an existing release.
+name: Pacchetto macOS (.dmg)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag della release a cui allegare il .dmg"
+        required: true
+        default: "v2.14.3"
+      versione:
+        description: "Versione dell'applicazione"
+        required: true
+        default: "2.14.3"
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: go-task
+        run: brew install go-task
+
+      - name: Compila il frontend
+        env:
+          DISABLE_ADDITIONAL_FEATURES: "true"
+        working-directory: frontend
+        run: |
+          npm ci
+          npx vite build editor --mode core
+
+      - name: Compila il jar
+        env:
+          DISABLE_ADDITIONAL_FEATURES: "true"
+        run: ./gradlew bootJar -PbuildWithFrontend=true --no-daemon
+
+      # jpackage wants an .icns, and macOS builds one from the PNG with the tools it already has.
+      - name: Icona
+        run: |
+          mkdir -p icona.iconset
+          for misura in 16 32 128 256 512; do
+            sips -z $misura $misura packaging/icone/logo-1024.png --out icona.iconset/icon_${misura}x${misura}.png
+            doppia=$((misura * 2))
+            sips -z $doppia $doppia packaging/icone/logo-1024.png --out icona.iconset/icon_${misura}x${misura}@2x.png
+          done
+          iconutil -c icns icona.iconset -o lawyers-pdf.icns
+
+      - name: jpackage
+        run: |
+          mkdir -p jp-input dist
+          cp app/core/build/libs/stirling-pdf-*.jar jp-input/
+          NOME_JAR=$(basename $(ls jp-input/*.jar))
+          jpackage --type dmg \
+            --name "Lawyers-PDF" \
+            --app-version "${{ inputs.versione }}" \
+            --vendor "Avv. Roberto Arcella" \
+            --description "Lawyers-PDF - un fork di Stirling PDF" \
+            --input jp-input \
+            --main-jar "$NOME_JAR" \
+            --icon lawyers-pdf.icns \
+            --java-options "-DBROWSER_OPEN=true" \
+            --java-options "-Xmx2g" \
+            --dest dist
+          mv "$(ls dist/*.dmg | head -1)" "dist/Lawyers-PDF-${{ inputs.versione }}-macos-arm64.dmg"
+
+      - name: Conserva il pacchetto come artefatto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lawyers-PDF-macos
+          path: dist/*.dmg
+
+      - name: Allega alla release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.tag }}" dist/*.dmg --clobber
