@@ -4,11 +4,6 @@ Licenza d'uso e avvertenze di responsabilita'
 Versione 1.0 - 30 agosto 2026
 ================================================================================
 
-BOZZA DA VALIDARE. Questo testo e' stato predisposto come schema di partenza.
-Prima di distribuire il software a terzi, va riletto e adattato da chi se ne
-assume la titolarita'.
-
-
 --------------------------------------------------------------------------------
 1. CHE COS'E' QUESTO SOFTWARE
 --------------------------------------------------------------------------------
