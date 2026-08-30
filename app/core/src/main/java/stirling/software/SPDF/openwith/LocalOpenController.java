@@ -76,11 +76,20 @@ public class LocalOpenController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok()
-                .header(
-                        FILE_NAME_HEADER,
-                        URLEncoder.encode(document.name(), StandardCharsets.UTF_8))
+                .header(FILE_NAME_HEADER, percentEncode(document.name()))
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(document.content());
+    }
+
+    /**
+     * Percent-encoding as the browser's {@code decodeURIComponent} expects it.
+     *
+     * <p>{@link URLEncoder} writes a space as {@code +}, the form-field convention, and {@code
+     * decodeURIComponent} leaves that plus sign exactly where it is: a document called "Atto di
+     * citazione.pdf" reached the workbench as "Atto+di+citazione.pdf".
+     */
+    private static String percentEncode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     /** Lets the launcher decide whether a document needs a new window or already has one. */

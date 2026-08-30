@@ -22,7 +22,12 @@ jobs:
     runs-on: macos-14
 
     steps:
+      # Si costruisce esattamente il codice del tag a cui il pacchetto verra' allegato: senza
+      # indicare il riferimento si prenderebbe il ramo corrente, e la release finirebbe per
+      # contenere un pacchetto costruito da sorgenti diversi da quelli che dichiara.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: JDK 25
         uses: actions/setup-java@v4
@@ -45,6 +50,30 @@ jobs:
         env:
           DISABLE_ADDITIONAL_FEATURES: "true"
         run: ./gradlew bootJar -PbuildWithFrontend=true --no-daemon
+
+      # InitialSetup pretende questi quattro modelli nel classpath e interrompe l'avvio se ne
+      # manca uno. Un file escluso per sbaglio dal repository non deve arrivare fino al pacchetto:
+      # meglio fermarsi qui, dove il rimedio e' evidente.
+      - name: Risorse obbligatorie nel jar
+        run: |
+          JAR="$(find app/core/build/libs -maxdepth 1 -name 'stirling-pdf-*.jar' -print -quit)"
+          echo "jar: $JAR"
+          MANCANTI=0
+          for nome in \
+            "OCR images.json" \
+            "Prepare-pdfs-for-email.json" \
+            "Pre-publish-sanitization.json" \
+            "split-rotate-auto-rename.json"
+          do
+            voce="BOOT-INF/classes/static/pipeline/defaultWebUIConfigs/$nome"
+            if unzip -Z1 "$JAR" | grep -Fxq -- "$voce"; then
+              echo "presente: $nome"
+            else
+              echo "::error::risorsa obbligatoria assente dal jar: $voce"
+              MANCANTI=1
+            fi
+          done
+          exit $MANCANTI
 
       # jpackage wants an .icns, and macOS builds one from the PNG with the tools it already has.
       - name: Icona

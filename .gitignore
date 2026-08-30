@@ -17,11 +17,15 @@ local.properties
 version.properties
 
 #### Stirling-PDF Files ###
-pipeline/
-!pipeline/.gitkeep
-customFiles/
-configs/
-watchedFolders/
+# Ancorate alla radice: senza la barra iniziale queste regole colpiscono anche le directory
+# sorgenti omonime, e i quattro modelli di pipeline sotto app/core/src/main/resources/static/
+# restavano fuori dal repository. Un pacchetto costruito da una copia pulita non si avviava:
+# InitialSetup pretende quelle risorse nel classpath e interrompe il contesto se mancano.
+/pipeline/
+!/pipeline/.gitkeep
+/customFiles/
+/configs/
+/watchedFolders/
 # The rule above targets the app's runtime watched-folders working dir, but it
 # also matches this frontend source component dir; keep the source tracked.
 !frontend/editor/src/proprietary/components/watchedFolders/
