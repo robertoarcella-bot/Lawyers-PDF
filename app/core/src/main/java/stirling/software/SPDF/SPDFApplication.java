@@ -148,12 +148,7 @@ public class SPDFApplication {
                     "Running in Tauri mode. Parent process PID: {}",
                     parentPid != null ? parentPid : "not set");
         }
-        // Standard browser opening logic
-        String browserOpenEnv = env.getProperty("BROWSER_OPEN");
-        boolean browserOpen = browserOpenEnv != null && "true".equalsIgnoreCase(browserOpenEnv);
-        if (browserOpen) {
-            AppWindowLauncher.open(url);
-        }
+        log.info("Navigate to {}", url);
     }
 
     public static void setServerPortStatic(String port) {
@@ -175,6 +170,15 @@ public class SPDFApplication {
         }
         // Log the actual runtime port for Tauri to parse
         log.info("Stirling-PDF running on port: {}", serverPortStatic);
+
+        // The window opens here, not while the context is still coming up: before this event the
+        // server is not listening yet, and a browser quick enough to win that race - Safari, on a
+        // first launch - lands on "cannot connect to the server" and stays there.
+        String browserOpenEnv = env.getProperty("BROWSER_OPEN");
+        if (browserOpenEnv != null && "true".equalsIgnoreCase(browserOpenEnv)) {
+            AppWindowLauncher.open(
+                    buildFullUrl(baseUrlStatic, serverPortStatic, contextPathStatic));
+        }
     }
 
     private static void printStartupLogs() {

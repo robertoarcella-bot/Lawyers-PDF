@@ -83,6 +83,31 @@ jobs:
           codesign --force --deep --sign - "immagine/Lawyers-PDF.app"
           codesign --verify --deep --verbose=2 "immagine/Lawyers-PDF.app"
 
+      # Un pacchetto che non parte verrebbe pubblicato lo stesso, e il difetto lo scoprirebbe chi
+      # lo scarica. Qui l'applicazione viene avviata davvero e interrogata finche' non risponde.
+      - name: Prova di avvio
+        run: |
+          "immagine/Lawyers-PDF.app/Contents/MacOS/Lawyers-PDF" > avvio.log 2>&1 &
+          PID=$!
+          RISPOSTA=""
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/api/v1/info/status > risposta.json 2>/dev/null; then
+              RISPOSTA=$(cat risposta.json)
+              break
+            fi
+            sleep 3
+          done
+          if [ -z "$RISPOSTA" ]; then
+            echo "::error::l'applicazione non ha risposto entro tre minuti"
+            echo "--- uscita del processo ---"; tail -80 avvio.log || true
+            echo "--- registro dell'applicazione ---"
+            tail -120 "$HOME/Library/Application Support/Lawyers-PDF/logs/info.log" 2>/dev/null || true
+            kill $PID 2>/dev/null || true
+            exit 1
+          fi
+          echo "avviata e in ascolto: $RISPOSTA"
+          kill $PID 2>/dev/null || true
+
       - name: jpackage - disco
         run: |
           jpackage --type dmg \
