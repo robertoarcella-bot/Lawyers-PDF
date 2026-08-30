@@ -40,8 +40,8 @@ Le release contengono:
 
 | File | Che cos'è |
 | --- | --- |
-| `Lawyers-PDF-<versione>-windows-x64.exe` | Eseguibile autoestraente: doppio clic, si sceglie la cartella, e il programma è pronto. |
-| `Lawyers-PDF-<versione>-windows-x64.zip` | Lo stesso contenuto, da estrarre a mano. |
+| `Lawyers-PDF-<versione>-windows-x64-setup.exe` | **Programma di installazione.** Installa per il solo utente corrente (nessun amministratore), con voce nel menu Start, disinstallazione e associazione ai PDF opzionale. |
+| `Lawyers-PDF-<versione>-windows-x64.zip` | Versione portabile: si estrae dove si vuole, anche su chiavetta. |
 | `Manuale-Lawyers-PDF.pdf` | Il manuale d'uso completo, con le immagini del programma. |
 
 Java **non** va installato: l'ambiente di esecuzione è incorporato nel pacchetto.
@@ -83,9 +83,11 @@ Servono JDK 25, Node 22 e [go-task](https://taskfile.dev).
 
 ```bash
 export DISABLE_ADDITIONAL_FEATURES=true
-cd frontend && npx vite build editor --mode core && cd ..
 ./gradlew bootJar -PbuildWithFrontend=true
 ```
+
+Il frontend lo costruisce Gradle con la sequenza del progetto: invocare `vite` a mano salta i passi
+preparatori.
 
 Il pacchetto Windows si costruisce poi con `jpackage --type app-image`; gli script accessori
 (associazione dei PDF, collegamenti, arresto) sono in `packaging/windows/`.
