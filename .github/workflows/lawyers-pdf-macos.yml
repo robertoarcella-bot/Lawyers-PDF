@@ -38,15 +38,10 @@ jobs:
       - name: go-task
         run: brew install go-task
 
-      - name: Compila il frontend
-        env:
-          DISABLE_ADDITIONAL_FEATURES: "true"
-        working-directory: frontend
-        run: |
-          npm ci
-          npx vite build editor --mode core
-
-      - name: Compila il jar
+      # Il frontend lo costruisce Gradle, con la sequenza del progetto (task frontend:build:core):
+      # invocare vite a mano salta il passo che genera dist/index.html, atteso dal plugin
+      # prerender-og, e su una copia pulita la build si ferma li'.
+      - name: Compila frontend e jar
         env:
           DISABLE_ADDITIONAL_FEATURES: "true"
         run: ./gradlew bootJar -PbuildWithFrontend=true --no-daemon
