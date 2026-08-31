@@ -8,7 +8,7 @@ on:
       tag:
         description: "Tag della release a cui allegare il .dmg"
         required: true
-        default: "v2.14.3"
+        default: "v2.14.3-3"
       versione:
         description: "Versione dell'applicazione"
         required: true
@@ -32,7 +32,7 @@ jobs:
       - name: JDK 25
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: microsoft
           java-version: "25"
 
       - name: Node 22
@@ -107,35 +107,20 @@ jobs:
             --java-options "-Xmx2g" \
             --dest immagine
 
+      # `--deep` e' un rimedio d'emergenza, non un modo di firmare: procede dall'esterno verso
+      # l'interno e lascia sigilli che un passo successivo puo' invalidare senza che nulla se ne
+      # accorga. Si firma nell'ordine giusto - prima i binari, poi il runtime, infine il bundle.
       - name: Firma ad-hoc
         run: |
-          codesign --force --deep --sign - "immagine/Lawyers-PDF.app"
-          codesign --verify --deep --verbose=2 "immagine/Lawyers-PDF.app"
-
-      # Un pacchetto che non parte verrebbe pubblicato lo stesso, e il difetto lo scoprirebbe chi
-      # lo scarica. Qui l'applicazione viene avviata davvero e interrogata finche' non risponde.
-      - name: Prova di avvio
-        run: |
-          "immagine/Lawyers-PDF.app/Contents/MacOS/Lawyers-PDF" > avvio.log 2>&1 &
-          PID=$!
-          RISPOSTA=""
-          for i in $(seq 1 60); do
-            if curl -fsS http://localhost:8080/api/v1/info/status > risposta.json 2>/dev/null; then
-              RISPOSTA=$(cat risposta.json)
-              break
+          APP="immagine/Lawyers-PDF.app"
+          find "$APP" -type f -perm -u+x -print0 | while IFS= read -r -d '' f; do
+            if file -b "$f" | grep -q 'Mach-O'; then
+              codesign --force --sign - "$f"
             fi
-            sleep 3
           done
-          if [ -z "$RISPOSTA" ]; then
-            echo "::error::l'applicazione non ha risposto entro tre minuti"
-            echo "--- uscita del processo ---"; tail -80 avvio.log || true
-            echo "--- registro dell'applicazione ---"
-            tail -120 "$HOME/Library/Application Support/Lawyers-PDF/logs/info.log" 2>/dev/null || true
-            kill $PID 2>/dev/null || true
-            exit 1
-          fi
-          echo "avviata e in ascolto: $RISPOSTA"
-          kill $PID 2>/dev/null || true
+          codesign --force --sign - "$APP/Contents/runtime"
+          codesign --force --sign - "$APP"
+          codesign --verify --strict --deep --verbose=2 "$APP"
 
       - name: jpackage - disco
         run: |
@@ -146,6 +131,48 @@ jobs:
             --app-image "immagine/Lawyers-PDF.app" \
             --dest dist
           mv "$(ls dist/*.dmg | head -1)" "dist/Lawyers-PDF-${{ inputs.versione }}-macos-arm64.dmg"
+
+      # La prova di avvio girava sull'immagine dell'applicazione, cioe' su un artefatto diverso da
+      # quello che viene pubblicato: un difetto introdotto dall'impacchettamento passava indenne, e
+      # infatti e' passato. Si prova il disco. L'applicazione si copia fuori come farebbe chi la
+      # installa, con l'attributo di quarantena che macOS mette a tutto cio' che arriva dalla rete,
+      # e si avvia da li'. Se il sigillo e' saltato il processo muore subito e senza registro; se e'
+      # l'applicazione a fermarsi, il motivo sta nel registro. I due casi si distinguono in fondo.
+      - name: Prova di avvio dal disco
+        run: |
+          DISCO="$(ls dist/*.dmg | head -1)"
+          hdiutil attach "$DISCO" -mountpoint /Volumes/prova -nobrowse -readonly
+          codesign --verify --strict --deep --verbose=4 "/Volumes/prova/Lawyers-PDF.app"
+          mkdir -p installata
+          ditto "/Volumes/prova/Lawyers-PDF.app" "installata/Lawyers-PDF.app"
+          hdiutil detach /Volumes/prova
+          xattr -w com.apple.quarantine "0081;00000000;Safari;" "installata/Lawyers-PDF.app"
+          codesign --verify --strict --deep --verbose=4 "installata/Lawyers-PDF.app"
+
+          OCCUPANTI="$(lsof -ti tcp:8080 || true)"
+          if [ -n "$OCCUPANTI" ]; then kill -9 $OCCUPANTI; sleep 2; fi
+
+          "installata/Lawyers-PDF.app/Contents/MacOS/Lawyers-PDF" > avvio.log 2>&1 &
+          PID=$!
+          RISPOSTA=""
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/api/v1/info/status > risposta.json 2>/dev/null; then
+              RISPOSTA=$(cat risposta.json)
+              break
+            fi
+            sleep 3
+          done
+          if [ -z "$RISPOSTA" ]; then
+            echo "::error::il pacchetto non ha risposto entro tre minuti"
+            echo "--- uscita del processo ---"; tail -80 avvio.log || true
+            echo "--- registro dell'applicazione ---"
+            tail -120 "$HOME/Library/Application Support/Lawyers-PDF/logs/info.log" 2>/dev/null \
+              || echo "(nessun registro: l'applicazione non e' arrivata ad aprirlo)"
+            kill $PID 2>/dev/null || true
+            exit 1
+          fi
+          echo "avviata e in ascolto: $RISPOSTA"
+          kill $PID 2>/dev/null || true
 
       - name: Conserva il pacchetto come artefatto
         uses: actions/upload-artifact@v4
