@@ -8,6 +8,11 @@ import { MODELLI_PREDEFINITI } from "@app/data/attestazioni/attestazioniTemplate
 export interface AttestazioniParameters extends BaseParameters {
   /** Id of the template to compile. */
   modelloId: string;
+  /**
+   * Id of the difensore (from the rubrica) who signs this attestation. Empty means "whoever is
+   * currently selected in the rubrica" - the natural default on a single-lawyer machine.
+   */
+  profiloId: string;
   /** Values for the template's own fields, keyed by placeholder. */
   valori: Record<string, string>;
   /** Description of each attested document, keyed by file name. */
@@ -31,6 +36,7 @@ export interface AttestazioniParameters extends BaseParameters {
 
 export const defaultParameters: AttestazioniParameters = {
   modelloId: MODELLI_PREDEFINITI[0].id,
+  profiloId: "",
   valori: {},
   descrizioni: {},
   posizione: "append",

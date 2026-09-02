@@ -18,7 +18,13 @@ import { AttestazioniParameters } from "@app/hooks/tools/attestazioni/useAttesta
 import { AttestazioneTemplate } from "@app/data/attestazioni/attestazioniTemplates";
 import {
   ProfiloDifensore,
-  salvaProfilo,
+  RubricaDifensori,
+  aggiungiDifensore,
+  aggiornaDifensore,
+  difensorePerId,
+  eliminaDifensore,
+  salvaRubrica,
+  selezionaDifensore,
 } from "@app/data/attestazioni/attestazioniStore";
 import { componiAttestazione } from "@app/hooks/tools/attestazioni/useAttestazioniOperation";
 import { rilevaDatiFascicolo } from "@app/data/attestazioni/rilevaDatiFascicolo";
@@ -33,8 +39,8 @@ export interface DatiVistaAttestazioni {
   ) => void;
   files: File[];
   modelli: AttestazioneTemplate[];
-  profilo: ProfiloDifensore;
-  onProfiloChange: (profilo: ProfiloDifensore) => void;
+  rubrica: RubricaDifensori;
+  onRubricaChange: (rubrica: RubricaDifensori) => void;
   onModelliChange: (modelli: AttestazioneTemplate[]) => void;
 }
 
@@ -56,6 +62,7 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
   const modelli = data?.modelli;
   const parameters = data?.parameters;
   const files = data?.files;
+  const rubrica = data?.rubrica;
 
   const modello = useMemo(() => {
     if (!modelli || modelli.length === 0) return undefined;
@@ -63,6 +70,13 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
       modelli.find((m) => m.id === parameters?.modelloId) ?? modelli[0]
     );
   }, [modelli, parameters?.modelloId]);
+
+  // The signer the fields below edit and the preview signs with. Resolved from the in-memory
+  // rubrica so both switching difensore and typing into their fields update the sheet live.
+  const firmatario = useMemo(
+    () => (rubrica ? difensorePerId(rubrica, parameters?.profiloId) : undefined),
+    [rubrica, parameters?.profiloId],
+  );
 
   const anteprima = useMemo(() => {
     if (!modello || !parameters || !files) return null;
@@ -72,11 +86,11 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
         files.length > 0
           ? (files as unknown as File[])
           : ([{ name: "documento.pdf" }] as unknown as File[]);
-      return componiAttestazione(parameters, perAnteprima);
+      return componiAttestazione(parameters, perAnteprima, firmatario);
     } catch {
       return null;
     }
-  }, [modello, parameters, files]);
+  }, [modello, parameters, files, firmatario]);
 
   // Court and docket number are usually printed on the document itself; read them off it
   // instead of making the user retype what the PDF already says.
@@ -116,19 +130,35 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
     void rileva(true);
   }, [files, rileva]);
 
-  if (!data || !modello || !parameters || !files) return null;
+  if (!data || !modello || !parameters || !files || !rubrica || !firmatario)
+    return null;
 
-  const { onParameterChange, profilo, onProfiloChange, onModelliChange } = data;
+  const { onParameterChange, onRubricaChange, onModelliChange } = data;
 
   const modificatoAMano = Boolean(
     parameters.titoloManuale.trim() || parameters.testoManuale.trim(),
   );
 
-  const aggiornaProfilo = (chiave: keyof ProfiloDifensore, valore: string) => {
-    const aggiornato = { ...profilo, [chiave]: valore };
-    onProfiloChange(aggiornato);
-    salvaProfilo(aggiornato);
+  // Every rubrica edit is persisted at once and the attestation is pointed at whoever is now
+  // selected, so the fields, the signature line and the saved data never drift apart.
+  const applicaRubrica = (aggiornata: RubricaDifensori) => {
+    onRubricaChange(aggiornata);
+    salvaRubrica(aggiornata);
+    if (aggiornata.selezionatoId !== parameters.profiloId) {
+      onParameterChange("profiloId", aggiornata.selezionatoId);
+    }
   };
+
+  const aggiornaFirmatario = (
+    chiave: keyof ProfiloDifensore,
+    valore: string,
+  ) =>
+    applicaRubrica(aggiornaDifensore(rubrica, firmatario.id, chiave, valore));
+
+  const datiFirmatari = rubrica.difensori.map((d) => ({
+    value: d.id,
+    label: d.difensore.trim() || "Difensore senza nome",
+  }));
 
   const aggiornaValore = (chiave: string, valore: string) => {
     onParameterChange("valori", { ...parameters.valori, [chiave]: valore });
@@ -158,39 +188,73 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
         <Stack gap="md" pr="md">
           <Group justify="space-between" align="center">
             <Text fw={600}>{modello.nome}</Text>
-            <Group gap="xs">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setProfiloAperto((v) => !v)}
-              >
-                {profiloAperto ? "Nascondi profilo" : "Profilo difensore"}
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setEditorAperto(true)}
-              >
-                Modelli
-              </Button>
-            </Group>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setEditorAperto(true)}
+            >
+              Modelli
+            </Button>
+          </Group>
+
+          <Divider label="Difensore firmatario" labelPosition="left" />
+
+          <Group align="flex-end" gap="xs" wrap="nowrap">
+            <Select
+              style={{ flex: 1 }}
+              label="Firma l'attestazione"
+              data={datiFirmatari}
+              value={firmatario.id}
+              onChange={(v) =>
+                v && applicaRubrica(selezionaDifensore(rubrica, v))
+              }
+              allowDeselect={false}
+              comboboxProps={{ withinPortal: true }}
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => applicaRubrica(aggiungiDifensore(rubrica))}
+            >
+              Aggiungi
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setProfiloAperto((v) => !v)}
+            >
+              {profiloAperto ? "Nascondi dati" : "Modifica dati"}
+            </Button>
           </Group>
 
           <Collapse in={profiloAperto}>
             <Stack gap="xs">
-              <Text size="xs" c="dimmed">
-                Salvato solo su questo computer. Il nome del difensore compare
-                in calce all&apos;attestazione.
-              </Text>
+              <Group justify="space-between" align="center">
+                <Text size="xs" c="dimmed">
+                  Salvato solo su questo computer. Questi dati compaiono in calce
+                  all&apos;attestazione del difensore selezionato.
+                </Text>
+                {rubrica.difensori.length > 1 && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      applicaRubrica(eliminaDifensore(rubrica, firmatario.id))
+                    }
+                  >
+                    Elimina difensore
+                  </Button>
+                )}
+              </Group>
               <Group grow align="flex-start">
                 <Stack gap="xs">
                   {ETICHETTE_PROFILO.slice(0, 3).map(({ chiave, label }) => (
                     <TextInput
                       key={chiave}
                       label={label}
-                      value={profilo[chiave]}
+                      value={firmatario[chiave]}
                       onChange={(e) =>
-                        aggiornaProfilo(chiave, e.currentTarget.value)
+                        aggiornaFirmatario(chiave, e.currentTarget.value)
                       }
                     />
                   ))}
@@ -200,9 +264,9 @@ const AttestazioniWorkbenchView = ({ data }: { data: DatiVistaAttestazioni }) =>
                     <TextInput
                       key={chiave}
                       label={label}
-                      value={profilo[chiave]}
+                      value={firmatario[chiave]}
                       onChange={(e) =>
-                        aggiornaProfilo(chiave, e.currentTarget.value)
+                        aggiornaFirmatario(chiave, e.currentTarget.value)
                       }
                     />
                   ))}

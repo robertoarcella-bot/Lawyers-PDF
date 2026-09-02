@@ -15,9 +15,9 @@ import AttestazioniSettings from "@app/components/tools/attestazioni/Attestazion
 import AttestazioniWorkbenchView from "@app/components/tools/attestazioni/AttestazioniWorkbenchView";
 import { AttestazioneTemplate } from "@app/data/attestazioni/attestazioniTemplates";
 import {
-  ProfiloDifensore,
+  RubricaDifensori,
   caricaModelli,
-  caricaProfilo,
+  caricaRubrica,
 } from "@app/data/attestazioni/attestazioniStore";
 
 const WORKBENCH_VIEW_ID = "attestazioniWorkbench";
@@ -47,8 +47,8 @@ const Attestazioni = (props: BaseToolProps) => {
   const [modelli, setModelli] = useState<AttestazioneTemplate[]>(() =>
     caricaModelli(),
   );
-  const [profilo, setProfilo] = useState<ProfiloDifensore>(() =>
-    caricaProfilo(),
+  const [rubrica, setRubrica] = useState<RubricaDifensori>(() =>
+    caricaRubrica(),
   );
 
   const viewIcon = useMemo(() => <VerifiedOutlinedIcon fontSize="small" />, []);
@@ -69,6 +69,18 @@ const Attestazioni = (props: BaseToolProps) => {
     // Register once: re-registering would clear the view's data mid-edit.
   }, []);
 
+  // A fresh tool run signs with whoever the rubrica currently has selected; an explicit choice
+  // in the workbench sets profiloId directly and this leaves it alone.
+  useEffect(() => {
+    if (!base.params.parameters.profiloId && rubrica.selezionatoId) {
+      base.params.updateParameter("profiloId", rubrica.selezionatoId);
+    }
+  }, [
+    base.params.parameters.profiloId,
+    rubrica.selezionatoId,
+    base.params.updateParameter,
+  ]);
+
   // Keep the workbench view fed with the current parameters, files and stored data.
   useEffect(() => {
     setCustomWorkbenchViewData(WORKBENCH_VIEW_ID, {
@@ -76,8 +88,8 @@ const Attestazioni = (props: BaseToolProps) => {
       onParameterChange: base.params.updateParameter,
       files: base.selectedFiles,
       modelli,
-      profilo,
-      onProfiloChange: setProfilo,
+      rubrica,
+      onRubricaChange: setRubrica,
       onModelliChange: setModelli,
     });
   }, [
@@ -85,7 +97,7 @@ const Attestazioni = (props: BaseToolProps) => {
     base.params.updateParameter,
     base.selectedFiles,
     modelli,
-    profilo,
+    rubrica,
     setCustomWorkbenchViewData,
   ]);
 

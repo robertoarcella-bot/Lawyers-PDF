@@ -5412,6 +5412,13 @@ filename = "File Name"
 label = "Sort By"
 sort = "Sort"
 
+[merge.reorder]
+title = "Order the files to merge"
+help = "Files are merged from top to bottom. Use the arrows to change the order, or sort automatically below."
+empty = "Select the documents to merge: they will appear here, in merge order."
+up = "Move up"
+down = "Move down"
+
 [merge.tooltip.header]
 title = "Merge Settings Overview"
 

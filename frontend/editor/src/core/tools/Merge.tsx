@@ -10,7 +10,11 @@ import { useMergeOperation } from "@app/hooks/tools/merge/useMergeOperation";
 import { useBaseTool } from "@app/hooks/tools/shared/useBaseTool";
 import { BaseToolProps, ToolComponent } from "@app/types/tool";
 import { useMergeTips } from "@app/components/tooltips/useMergeTips";
-import { useFileManagement, useAllFiles } from "@app/contexts/FileContext";
+import {
+  useFileManagement,
+  useAllFiles,
+  useSelectedFiles,
+} from "@app/contexts/FileContext";
 import {
   useNavigationState,
   useNavigationActions,
@@ -20,8 +24,10 @@ const Merge = (props: BaseToolProps) => {
   const { t } = useTranslation();
   const mergeTips = useMergeTips();
 
-  // File selection hooks for custom sorting
-  const { fileIds, fileStubs } = useAllFiles();
+  // File selection hooks for custom sorting. The merge order is the order of the *selected*
+  // files, so the reordering UI works on those, not on every loaded file.
+  const { fileIds } = useAllFiles();
+  const { selectedFileStubs } = useSelectedFiles();
   const { reorderFiles } = useFileManagement();
 
   const base = useBaseTool(
@@ -107,27 +113,46 @@ const Merge = (props: BaseToolProps) => {
     return len1 - len2;
   }, []);
 
-  // Custom file sorting logic for merge tool
-  const sortFiles = useCallback(
-    (sortType: "filename" | "dateModified", ascending: boolean = true) => {
-      const sortedStubs = [...fileStubs].sort((stubA, stubB) => {
-        let comparison = 0;
-        switch (sortType) {
-          case "filename":
-            comparison = naturalCompare(stubA.name, stubB.name);
-            break;
-          case "dateModified":
-            comparison = stubA.lastModified - stubB.lastModified;
-            break;
-        }
-        return ascending ? comparison : -comparison;
-      });
-
-      const selectedIds = sortedStubs.map((record) => record.id);
+  // Push a new order for the merged files into the file context. The selected files lead in the
+  // chosen order; anything not being merged stays behind so it is left untouched.
+  const applyOrder = useCallback(
+    (orderedSelected: typeof selectedFileStubs) => {
+      const selectedIds = orderedSelected.map((record) => record.id);
       const deselectedIds = fileIds.filter((id) => !selectedIds.includes(id));
       reorderFiles([...selectedIds, ...deselectedIds]);
     },
-    [fileStubs, fileIds, reorderFiles, naturalCompare],
+    [fileIds, reorderFiles],
+  );
+
+  // Automatic sort of the files to merge, by name or modified date.
+  const sortFiles = useCallback(
+    (sortType: "filename" | "dateModified", ascending: boolean = true) => {
+      const sorted = [...selectedFileStubs].sort((stubA, stubB) => {
+        const comparison =
+          sortType === "filename"
+            ? naturalCompare(stubA.name, stubB.name)
+            : stubA.lastModified - stubB.lastModified;
+        return ascending ? comparison : -comparison;
+      });
+      applyOrder(sorted);
+    },
+    [selectedFileStubs, applyOrder, naturalCompare],
+  );
+
+  // Manual reorder: swap a file with its neighbour, so the order can be set by hand from the
+  // list in the panel - the part users could not find before.
+  const moveFile = useCallback(
+    (index: number, direction: -1 | 1) => {
+      const target = index + direction;
+      if (target < 0 || target >= selectedFileStubs.length) return;
+      const reordered = [...selectedFileStubs];
+      [reordered[index], reordered[target]] = [
+        reordered[target],
+        reordered[index],
+      ];
+      applyOrder(reordered);
+    },
+    [selectedFileStubs, applyOrder],
   );
 
   return createToolFlow({
@@ -138,11 +163,13 @@ const Merge = (props: BaseToolProps) => {
     },
     steps: [
       {
-        title: "Sort Files",
-        isCollapsed: base.settingsCollapsed,
+        title: t("merge.reorder.title", "Ordina i file da unire"),
+        isCollapsed: base.hasResults,
         content: (
           <MergeFileSorter
+            files={selectedFileStubs}
             onSortFiles={sortFiles}
+            onMoveFile={moveFile}
             disabled={!base.hasFiles || base.endpointLoading}
           />
         ),

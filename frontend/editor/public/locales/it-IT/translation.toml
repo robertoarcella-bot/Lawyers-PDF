@@ -5094,6 +5094,13 @@ filename = "Nome file"
 label = "Ordina per"
 sort = "Ordina"
 
+[merge.reorder]
+title = "Ordina i file da unire"
+help = "I documenti saranno uniti dall'alto verso il basso. Usa le frecce per cambiare l'ordine, oppure ordina automaticamente qui sotto."
+empty = "Seleziona i documenti da unire: compariranno qui, nell'ordine di unione."
+up = "Sposta su"
+down = "Sposta giù"
+
 [merge.tooltip.header]
 title = "Panoramica impostazioni unione"
 

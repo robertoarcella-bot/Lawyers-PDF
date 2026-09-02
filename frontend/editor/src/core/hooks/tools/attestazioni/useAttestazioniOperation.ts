@@ -17,7 +17,9 @@ import {
 } from "@app/data/attestazioni/attestazioniTemplates";
 import {
   caricaModelli,
-  caricaProfilo,
+  caricaRubrica,
+  difensorePerId,
+  ProfiloDifensore,
 } from "@app/data/attestazioni/attestazioniStore";
 
 const ENDPOINT_ATTESTAZIONE = "/api/v1/misc/append-text-page";
@@ -79,11 +81,15 @@ export function componiElencoAtti(
 export function componiAttestazione(
   parameters: AttestazioniParameters,
   files: File[],
+  profiloOverride?: ProfiloDifensore,
 ): { titolo: string; testo: string } {
   const modelli = caricaModelli();
   const modello =
     modelli.find((m) => m.id === parameters.modelloId) ?? modelli[0];
-  const profilo = caricaProfilo();
+  // The signer: the one passed in (live preview, straight from the in-memory rubrica) or the
+  // difensore this attestation's parameters name, resolved from the saved rubrica at run time.
+  const profilo =
+    profiloOverride ?? difensorePerId(caricaRubrica(), parameters.profiloId);
   const data = risolviData(parameters.data);
 
   const valori: Record<string, string> = {
