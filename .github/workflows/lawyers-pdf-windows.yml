@@ -66,7 +66,8 @@ jobs:
             "split-rotate-auto-rename.json"
           do
             voce="BOOT-INF/classes/static/pipeline/defaultWebUIConfigs/$nome"
-            if unzip -Z1 "$JAR" | grep -Fxq -- "$voce"; then
+            # jar tf (dal JDK) al posto di unzip: Git-Bash su Windows non include unzip.
+            if jar tf "$JAR" | grep -Fxq -- "$voce"; then
               echo "presente: $nome"
             else
               echo "::error::risorsa obbligatoria assente dal jar: $voce"
