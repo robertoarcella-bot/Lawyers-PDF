@@ -90,6 +90,14 @@ jobs:
       # ad-hoc: senza, il sistema termina il processo appena parte. jpackage non la applica
       # quando non gli si indica un'identita', quindi si costruisce prima l'applicazione, la si
       # firma, e solo allora la si impacchetta nel disco.
+      # Su Linux/Docker la JVM parte headless da sola perche' non trova un display; su macOS il
+      # WindowServer c'e' sempre, quindi AWT/Java2D (che PDFBox tira su per il rendering) si
+      # inizializza in modalita' grafica e registra il processo come applicazione presso il Dock.
+      # Essendo un server senza finestra Cocoa, la fase di avvio non si chiude mai: l'icona nel
+      # Dock rimbalza all'infinito, "come se si stesse sempre avviando". Si forza l'headless (e'
+      # la stessa modalita' con cui il jar gira gia' su server, e il browser lo apre il comando
+      # nativo `open`, non java.awt.Desktop, quindi -DBROWSER_OPEN non ne risente); apple.awt.
+      # UIElement e' la rete di sicurezza se qualche libreria rimettesse AWT in modalita' grafica.
       - name: jpackage - immagine dell'applicazione
         run: |
           mkdir -p jp-input immagine dist
@@ -105,6 +113,8 @@ jobs:
             --icon lawyers-pdf.icns \
             --java-options "-DBROWSER_OPEN=true" \
             --java-options "-Xmx2g" \
+            --java-options "-Djava.awt.headless=true" \
+            --java-options "-Dapple.awt.UIElement=true" \
             --dest immagine
 
       # `--deep` e' un rimedio d'emergenza, non un modo di firmare: procede dall'esterno verso
