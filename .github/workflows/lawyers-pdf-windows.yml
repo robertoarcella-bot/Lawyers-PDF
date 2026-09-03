@@ -1,0 +1,166 @@
+# Costruisce l'installer Windows (.exe), che come il .dmg puo' nascere solo sul sistema
+# corrispondente: jpackage emette il formato della macchina su cui gira. Avvio manuale; allega
+# il setup a una release gia' esistente. Gemello di lawyers-pdf-macos.yml.
+name: Pacchetto Windows (setup.exe)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag della release a cui allegare il setup.exe"
+        required: true
+        default: "v2.14.3-4"
+      versione:
+        description: "Versione dell'applicazione"
+        required: true
+        default: "2.14.3"
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    runs-on: windows-latest
+
+    steps:
+      # Si costruisce esattamente il codice del tag a cui il pacchetto verra' allegato.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: go-task
+        run: choco install go-task -y
+
+      # Il frontend lo costruisce Gradle con la sequenza del progetto (task frontend:build:core),
+      # in modalita' "core" come la release: DISABLE_ADDITIONAL_FEATURES esclude le funzioni
+      # aggiuntive, cosi' il frontend non chiama endpoint che il backend non espone.
+      - name: Compila frontend e jar
+        shell: bash
+        env:
+          DISABLE_ADDITIONAL_FEATURES: "true"
+        run: ./gradlew bootJar -PbuildWithFrontend=true --no-daemon
+
+      # InitialSetup pretende questi quattro modelli nel classpath e interrompe l'avvio se ne
+      # manca uno: meglio fermarsi qui, dove il rimedio e' evidente.
+      - name: Risorse obbligatorie nel jar
+        shell: bash
+        run: |
+          JAR="$(find app/core/build/libs -maxdepth 1 -name 'stirling-pdf-*.jar' -print -quit)"
+          echo "jar: $JAR"
+          MANCANTI=0
+          for nome in \
+            "OCR images.json" \
+            "Prepare-pdfs-for-email.json" \
+            "Pre-publish-sanitization.json" \
+            "split-rotate-auto-rename.json"
+          do
+            voce="BOOT-INF/classes/static/pipeline/defaultWebUIConfigs/$nome"
+            if unzip -Z1 "$JAR" | grep -Fxq -- "$voce"; then
+              echo "presente: $nome"
+            else
+              echo "::error::risorsa obbligatoria assente dal jar: $voce"
+              MANCANTI=1
+            fi
+          done
+          exit $MANCANTI
+
+      # jpackage costruisce l'immagine dell'applicazione (launcher .exe + runtime Java 25 + jar).
+      - name: jpackage - immagine dell'applicazione
+        shell: bash
+        run: |
+          mkdir -p jp-input
+          cp app/core/build/libs/stirling-pdf-*.jar jp-input/
+          NOME_JAR=$(basename $(ls jp-input/*.jar))
+          jpackage --type app-image \
+            --name "Lawyers-PDF" \
+            --app-version "${{ inputs.versione }}" \
+            --vendor "Avv. Roberto Arcella" \
+            --description "Lawyers-PDF - un fork di Stirling PDF" \
+            --input jp-input \
+            --main-jar "$NOME_JAR" \
+            --icon packaging/icone/lawyers-pdf.ico \
+            --java-options "-DBROWSER_OPEN=true" \
+            --java-options "-Xmx2g" \
+            --dest immagine
+
+      # L'immagine attesa dall'installer e' la cartella portabile completa: al pacchetto jpackage
+      # si aggiungono l'icona del documento, lo script dei collegamenti, il leggimi/licenza e gli
+      # script .cmd (l'installer poi esclude quelli utili solo alla versione portabile).
+      - name: Assembla l'immagine con gli extra
+        shell: bash
+        run: |
+          APP="immagine/Lawyers-PDF"
+          cp "packaging/icone/lawyers-pdf-doc.ico" "$APP/app/lawyers-pdf-doc.ico"
+          cp "packaging/windows/app/collegamenti.ps1" "$APP/app/collegamenti.ps1"
+          cp "packaging/windows/LEGGIMI.txt" "$APP/LEGGIMI.txt"
+          cp "packaging/windows/LICENZA.txt" "$APP/LICENZA.txt"
+          cp "packaging/windows/Arresta Lawyers-PDF.cmd" "$APP/"
+          cp "packaging/windows/Associa i PDF a Lawyers-PDF.cmd" "$APP/"
+          cp "packaging/windows/Crea i collegamenti.cmd" "$APP/"
+          cp "packaging/windows/Ripristina l'associazione dei PDF.cmd" "$APP/"
+
+      # Un pacchetto che non parte non deve essere pubblicato: qui si avvia davvero e si interroga.
+      - name: Prova di avvio
+        shell: bash
+        run: |
+          "immagine/Lawyers-PDF/Lawyers-PDF.exe" > avvio.log 2>&1 &
+          RISPOSTA=""
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/api/v1/info/status > risposta.json 2>/dev/null; then
+              RISPOSTA=$(cat risposta.json)
+              break
+            fi
+            sleep 3
+          done
+          taskkill //F //IM "Lawyers-PDF.exe" >/dev/null 2>&1 || true
+          if [ -z "$RISPOSTA" ]; then
+            echo "::error::l'applicazione non ha risposto entro tre minuti"
+            tail -120 avvio.log || true
+            exit 1
+          fi
+          echo "avviata e in ascolto: $RISPOSTA"
+
+      # Inno Setup e' preinstallato sui runner windows-latest; in caso contrario lo si aggiunge.
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup -y
+          }
+
+      # installer.iss usa percorsi fissi sotto C:\SPDF-build: qui si ricrea quella struttura con
+      # l'immagine appena assemblata, cosi' lo script del progetto resta invariato.
+      - name: Compila l'installer
+        shell: cmd
+        run: |
+          if not exist "C:\SPDF-build\jp-pubblica" mkdir "C:\SPDF-build\jp-pubblica"
+          if not exist "C:\SPDF-build\pacchetti" mkdir "C:\SPDF-build\pacchetti"
+          if not exist "C:\SPDF-build\portable-extras" mkdir "C:\SPDF-build\portable-extras"
+          xcopy /E /I /Y "immagine\Lawyers-PDF" "C:\SPDF-build\jp-pubblica\Lawyers-PDF"
+          copy /Y "packaging\icone\lawyers-pdf.ico" "C:\SPDF-build\lawyers-pdf.ico"
+          copy /Y "packaging\windows\LICENZA.txt" "C:\SPDF-build\portable-extras\LICENZA.txt"
+          copy /Y "packaging\windows\LEGGIMI.txt" "C:\SPDF-build\portable-extras\LEGGIMI.txt"
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "packaging\windows\installer.iss"
+
+      - name: Conserva il pacchetto come artefatto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lawyers-PDF-windows
+          path: C:\SPDF-build\pacchetti\*.exe
+
+      - name: Allega alla release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.tag }}" "C:/SPDF-build/pacchetti/Lawyers-PDF-${{ inputs.versione }}-windows-x64-setup.exe" --clobber
