@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Lawyers-PDF — Manuale d'uso</title>
+<style>
+  :root{
+    --rosso:#a11d1d; --scuro:#1e2430; --testo:#1c1c1c; --tenue:#5a6472;
+    --bordo:#d7dbe2; --nota:#eef4fb; --nota-b:#2f6fb0; --amb:#fbf5e9; --amb-b:#c08a1e;
+    --resp:#fdeeee; --resp-b:#b23b3b; --codebg:#f2f3f5;
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{
+    font-family:"Source Serif Pro", Georgia, "Times New Roman", serif;
+    color:var(--testo); font-size:10.6pt; line-height:1.55; margin:0;
+  }
+  h1,h2,h3,.marchio,.etichetta,th,.tocnum,.figcap{
+    font-family:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  @page{ size:A4; margin:0; }
+  /* --- Titolo --- */
+  .cover{ height:247mm; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; page-break-after:always; }
+  .cover img{ width:96px; height:96px; margin-bottom:10px; }
+  .cover .t{ font-family:"Segoe UI",Arial,sans-serif; font-size:34pt; font-weight:700; color:var(--scuro); letter-spacing:.5px; }
+  .cover .s{ font-size:15pt; color:var(--tenue); margin-top:2px; }
+  .cover .rule{ width:220px; border:0; border-top:1px solid var(--bordo); margin:26px 0; }
+  .cover .meta{ color:var(--scuro); font-size:11pt; line-height:1.9; }
+  .cover .meta .q{ font-style:italic; color:var(--tenue); }
+  /* --- Intestazione di pagina simulata --- */
+  h1{ color:var(--rosso); font-size:20pt; border-bottom:2px solid var(--rosso);
+    padding-bottom:6px; margin:0 0 14px; page-break-before:always; page-break-after:avoid; }
+  h1.no-break{ page-break-before:auto; }
+  h2{ color:var(--scuro); font-size:13pt; margin:20px 0 6px; page-break-after:avoid; }
+  h3{ color:var(--scuro); font-size:11pt; margin:14px 0 4px; page-break-after:avoid; }
+  p{ margin:0 0 9px; text-align:justify; }
+  ul,ol{ margin:0 0 10px; padding-left:22px; }
+  li{ margin:3px 0; text-align:justify; }
+  code,.mono{ font-family:"Cascadia Mono",Consolas,"Courier New",monospace;
+    background:var(--codebg); padding:1px 5px; border-radius:3px; font-size:9.2pt; }
+  em{ font-style:italic; }
+  strong{ font-weight:700; }
+  a{ color:var(--nota-b); text-decoration:none; }
+  /* --- Indice --- */
+  .toc h1{ page-break-before:auto; }
+  .toc .c{ margin:10px 0 4px; font-family:"Segoe UI",Arial,sans-serif; font-weight:700; color:var(--scuro); font-size:11.5pt; }
+  .toc .s{ color:var(--tenue); margin:2px 0 2px 18px; font-size:10pt; }
+  /* --- Tabelle --- */
+  table{ border-collapse:collapse; width:100%; margin:10px 0 14px; font-size:9.6pt; page-break-inside:avoid; }
+  th{ background:#eef0f3; color:var(--scuro); text-align:left; font-size:8.6pt;
+    text-transform:uppercase; letter-spacing:.04em; padding:6px 8px; border:1px solid var(--bordo); }
+  td{ padding:6px 8px; border:1px solid var(--bordo); vertical-align:top; text-align:left; }
+  td:first-child{ white-space:nowrap; font-weight:600; color:var(--scuro); }
+  td.w{ white-space:normal; }
+  /* --- Box --- */
+  .box{ border-left:4px solid var(--nota-b); background:var(--nota);
+    padding:9px 14px; margin:12px 0; border-radius:0 4px 4px 0; page-break-inside:avoid; }
+  .box .etichetta{ display:block; font-size:8pt; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--nota-b); margin-bottom:4px; }
+  .box p:last-child{ margin-bottom:0; }
+  .box.amber{ border-color:var(--amb-b); background:var(--amb); }
+  .box.amber .etichetta{ color:var(--amb-b); }
+  .box.resp{ border-color:var(--resp-b); background:var(--resp); }
+  .box.resp .etichetta{ color:var(--resp-b); }
+  /* --- Figure --- */
+  figure{ margin:14px 0; page-break-inside:avoid; text-align:center; }
+  figure img{ max-width:100%; border:1px solid var(--bordo); border-radius:4px; }
+  figure.icon img{ width:120px; border:0; }
+  .figcap{ font-size:8.6pt; color:var(--tenue); margin-top:5px; text-align:center; font-style:italic; }
+  /* --- Passi numerati --- */
+  ol.passi{ counter-reset:passo; list-style:none; padding-left:0; }
+  ol.passi>li{ counter-increment:passo; position:relative; padding-left:30px; margin:7px 0; }
+  ol.passi>li::before{ content:counter(passo); position:absolute; left:0; top:0;
+    width:20px; height:20px; background:var(--rosso); color:#fff; border-radius:50%;
+    font-family:"Segoe UI",Arial,sans-serif; font-size:9pt; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center; }
+  .dim{ color:var(--tenue); }
+</style>
+</head>
+<body>
+
+<!-- ===================== COPERTINA ===================== -->
+<section class="cover">
+  <img src="assets/logo.png" alt="Lawyers-PDF">
+  <div class="t">Lawyers-PDF</div>
+  <div class="s">Manuale d'uso</div>
+  <hr class="rule">
+  <div class="meta">
+    Versione 2.14.3 — edizione forense<br>
+    <span class="q">Un fork di Stirling PDF, licenza MIT</span><br>
+    Avv. Roberto Arcella
+  </div>
+  <hr class="rule">
+  <div class="meta q">settembre 2026</div>
+</section>
+
+<!-- ===================== INDICE ===================== -->
+<section class="toc">
+  <h1 class="no-break">Indice</h1>
+  <div class="c">1. Che cos'è Lawyers-PDF</div>
+  <div class="s">1.1 In due righe · 1.2 Da dove viene · 1.3 Che cosa non c'è, e perché è una garanzia · 1.4 Dove restano i documenti</div>
+  <div class="c">2. Installazione e avvio</div>
+  <div class="s">2.1 Due strade: installare o copiare · 2.2 Il primo avvio e l'avviso di Windows · 2.3 La finestra del programma · 2.4 Chiudere Lawyers-PDF · 2.5 Collegamenti · 2.6 La porta 8080 · 2.7 Spostare la cartella</div>
+  <div class="c">3. Aprire i PDF con un doppio clic</div>
+  <div class="s">3.1 Lo script di associazione · 3.2 L'ultimo passaggio spetta a Windows · 3.3 Come si comporta il programma · 3.4 Tornare indietro</div>
+  <div class="c">4. L'interfaccia in cinque minuti</div>
+  <div class="s">4.1 Le tre colonne · 4.2 Portare dentro i documenti · 4.3 Visualizzatore, file attivi, editor delle pagine · 4.4 La ricerca rapida · 4.5 Applicare uno strumento · 4.6 I file restano fra le sessioni</div>
+  <div class="c">5. Le attestazioni di conformità</div>
+  <div class="s">5.1 A che cosa serve · 5.2 La prima volta: la rubrica dei difensori · 5.3 I modelli disponibili · 5.4 Procedura passo passo · 5.5 Più documenti in una sola attestazione · 5.6 Rilevare ufficio e R.G. · 5.7 Posizione e dimensione · 5.8 Modificare i modelli · 5.9 Il processo tributario · 5.10 Responsabilità · 5.11 Dopo la generazione: firmare</div>
+  <div class="c">6. Firme e marche temporali</div>
+  <div class="s">6.1 Tre cose diverse · 6.2 La firma disegnata e il timbro · 6.3 La firma con certificato · 6.4 Business key o smart card · 6.5 Il formato prodotto · 6.6 Convalidare una firma · 6.7 Rimuovere una firma · 6.8 La marca temporale · 6.9 L'ordine giusto</div>
+  <div class="c">7. Gli altri strumenti</div>
+  <div class="s">7.1 Testo e contenuto · 7.2 Sicurezza · 7.3 Verifica e revisione · 7.4 Pagine · 7.5 Estrazione e rimozione · 7.6 Automazione · 7.7 Strumenti avanzati</div>
+  <div class="c">8. Ricette per lo studio</div>
+  <div class="c">9. Se qualcosa non va</div>
+  <div class="c">10. Licenza, marchi e responsabilità</div>
+  <div class="c">Glossario</div>
+</section>
+
+<!-- ===================== 1 ===================== -->
+<h1>1. Che cos'è Lawyers-PDF</h1>
+
+<h2>1.1 In due righe</h2>
+<p>Lawyers-PDF è un programma per lavorare sui documenti PDF: unire, dividere, ruotare, comprimere, convertire, oscurare, firmare, marcare temporalmente, riconoscere il testo delle scansioni. A questo aggiunge una funzione scritta per lo studio legale: la redazione e l'apposizione delle <strong>attestazioni di conformità</strong>.</p>
+<p>Gira interamente sul computer dove è installato. Non richiede un account, non chiede una registrazione, non ha un abbonamento e non manda i documenti da nessuna parte.</p>
+<figure>
+  <img src="assets/fig-home.png" alt="Schermata iniziale">
+  <div class="figcap">Figura 1 — La schermata iniziale. A sinistra la libreria dei file, al centro l'area di lavoro, a destra l'elenco degli strumenti.</div>
+</figure>
+
+<h2>1.2 Da dove viene</h2>
+<p>Lawyers-PDF è un <em>fork</em> — cioè una versione derivata e modificata — di Stirling PDF, un programma libero distribuito con licenza MIT. Il codice di partenza è di Stirling PDF Inc.; le modifiche (la funzione per le attestazioni, l'apertura dei PDF con un doppio clic, l'aspetto e i nomi) sono state aggiunte in questa versione.</p>
+<p>La licenza MIT consente di usare, copiare, modificare e ridistribuire il programma, a condizione di conservare l'avviso di copyright originale. Il file <code>LICENZA.txt</code>, nella cartella del programma, riporta il testo completo e le attribuzioni dovute.</p>
+
+<h2>1.3 Che cosa non c'è, e perché è una garanzia</h2>
+<p>Stirling PDF esiste in due versioni: una libera e una commerciale, con funzioni a pagamento (archiviazione condivisa, gestione utenti, automazioni "Processor", fatturazione a consumo). Lawyers-PDF è compilato dalla sola parte libera: il modulo commerciale non è incluso nel programma, non è disattivato per impostazione.</p>
+<p>Le conseguenze pratiche sono tre, ed è utile conoscerle:</p>
+<ul>
+  <li><strong>Non esiste una schermata di accesso.</strong> Il codice che gestisce gli utenti non è presente: il programma non può chiedere credenziali perché non ha nulla con cui verificarle.</li>
+  <li><strong>Non esiste alcun collegamento a un server remoto</strong> per l'elaborazione. Tutto avviene sul computer.</li>
+  <li><strong>Non c'è nulla da pagare</strong>, né limiti d'uso, né conteggi di documenti.</li>
+</ul>
+<div class="box">
+  <span class="etichetta">Nota</span>
+  <p>Alcune voci dell'interfaccia originale presupponevano un account e un server remoto e qui non potrebbero funzionare: <em>Firma condivisa</em> e l'<em>Editor di testo PDF</em> (quest'ultimo ancora sperimentale anche a monte) sono stati rimossi dall'elenco degli strumenti. Il collegamento a <em>Google Drive</em>, nella colonna dei file, resta visibile ma inattivo.</p>
+</div>
+
+<h2>1.4 Dove restano i documenti</h2>
+<p>La domanda conta più di ogni altra, per chi tratta atti coperti dal segreto professionale e dati di clienti. La risposta è: <strong>sul computer, e solo lì</strong>.</p>
+<p>Il programma funziona come un piccolo server che parla soltanto con sé stesso, sull'indirizzo <code>localhost</code> — l'indirizzo che ogni computer riserva a sé. I documenti caricati restano nella memoria del browser locale e nella cartella temporanea del programma; le elaborazioni (unione, compressione, OCR e così via) avvengono in quel server locale.</p>
+<p>Esiste una sola eccezione, dichiarata ed evidente, ed è la <strong>marca temporale</strong>: per sua natura richiede di interrogare un servizio esterno. Anche in quel caso, però, il documento non parte: viene inviata soltanto la sua "impronta" numerica (§ 6.8).</p>
+<p>Impostazioni, registri e file accessori vivono in una cartella fissa del profilo utente — <code>%LOCALAPPDATA%\Lawyers-PDF</code> — indipendente da dove il programma viene avviato. Per rimuovere ogni traccia dal computer si cancella quella cartella oltre a quella del programma.</p>
+<p>Le statistiche d'uso previste dal programma originale (PostHog, Scarf) sono disattivate nella configurazione distribuita. L'informativa completa è consultabile dal programma stesso, in <em>Utente → Apri impostazioni → Note legali → Informativa sulla privacy</em>: è servita in locale e si legge anche senza connessione.</p>
+
+<!-- ===================== 2 ===================== -->
+<h1>2. Installazione e avvio</h1>
+
+<h2>2.1 Due strade: installare o copiare</h2>
+<p>Lawyers-PDF si distribuisce in due forme, equivalenti nel contenuto:</p>
+<ul>
+  <li><strong>Il programma di installazione</strong> (<code>Lawyers-PDF-2.14.3-windows-x64-setup.exe</code>). Installa per il solo utente corrente — nessuna richiesta di amministratore —, crea la voce nel menu Start, il collegamento sul desktop se lo si chiede, e propone l'associazione ai file PDF. Si disinstalla da <em>Impostazioni → App</em> come qualunque altro programma. È la forma consigliata.</li>
+  <li><strong>La cartella portabile.</strong> Si estrae dove si vuole, anche su una chiavetta, e non lascia tracce nel sistema. È la forma descritta nei paragrafi che seguono; l'installazione mette gli stessi file in <code>%LOCALAPPDATA%\Programs\Lawyers-PDF</code>.</li>
+</ul>
+<p>In entrambi i casi <strong>Java non va installato</strong>: l'ambiente di esecuzione è incorporato.</p>
+
+<h3>2.1.1 Che cosa contiene la cartella</h3>
+<table>
+  <thead><tr><th>Elemento</th><th>A che cosa serve</th></tr></thead>
+  <tbody>
+    <tr><td>Lawyers-PDF.exe</td><td class="w">Avvia il programma. È questo il file da eseguire (o da collegare al desktop).</td></tr>
+    <tr><td>Arresta Lawyers-PDF.cmd</td><td class="w">Ferma il programma quando la finestra è già stata chiusa.</td></tr>
+    <tr><td>Associa i PDF…​.cmd</td><td class="w">Registra il programma come applicazione per i file PDF (capitolo 3). Solo nella versione portabile: con l'installer lo fa il programma di installazione.</td></tr>
+    <tr><td>Crea i collegamenti.cmd</td><td class="w">Mette Lawyers-PDF sul desktop e nel menu Start.</td></tr>
+    <tr><td>LEGGIMI.txt</td><td class="w">Riassunto essenziale, per chi non legge i manuali.</td></tr>
+    <tr><td>LICENZA.txt</td><td class="w">Licenza d'uso, attribuzioni, esclusioni di garanzia.</td></tr>
+    <tr><td>app\</td><td class="w">Il programma vero e proprio.</td></tr>
+    <tr><td>runtime\</td><td class="w">L'ambiente Java incorporato.</td></tr>
+  </tbody>
+</table>
+
+<h2>2.2 Il primo avvio e l'avviso di Windows</h2>
+<p>Doppio clic su <code>Lawyers-PDF.exe</code>. La prima volta Windows può mostrare l'avviso di SmartScreen: «Windows ha protetto il PC». Non è un allarme sul contenuto, ma la conseguenza del fatto che l'eseguibile non è firmato con un certificato commerciale (che ha un costo annuo e serve soltanto a evitare quel messaggio). Per procedere: <em>Ulteriori informazioni → Esegui comunque</em>.</p>
+<p>L'avvio richiede da venti secondi a un minuto la prima volta, meno in seguito: il programma sta avviando il proprio server locale. Poi la finestra si apre da sola.</p>
+
+<h2>2.3 La finestra del programma</h2>
+<p>La finestra di Lawyers-PDF è, tecnicamente, una finestra di Microsoft Edge (o di Chrome, se installato) aperta in "modalità applicazione": senza schede, senza barra degli indirizzi, senza preferiti, con una propria voce nella barra delle applicazioni e con l'icona di Lawyers-PDF. All'atto pratico è una normale finestra di programma.</p>
+<p>Questa scelta non è un ripiego: l'interfaccia è costruita con tecnologie web e questo consente di avere lo stesso programma, identico, su Windows, macOS e Linux. Se sul computer non fosse presente alcun browser basato su Chromium, il programma ripiegherà sull'apertura di una scheda nel browser predefinito.</p>
+
+<h2>2.4 Chiudere Lawyers-PDF</h2>
+<p>Chiudere la finestra <strong>non</strong> ferma il server, che resta in attesa in secondo piano (così una successiva apertura è immediata). Riavviando il programma senza aprire un documento, la finestra già disponibile torna semplicemente in primo piano. Per fermare davvero il server — prima di spegnere, o per liberare memoria — si usa <code>Arresta Lawyers-PDF.cmd</code> (con l'installer, la disinstallazione lo ferma da sola).</p>
+
+<h2>2.5 Collegamenti sul desktop e nel menu Start</h2>
+<p>Con l'installer i collegamenti sono creati automaticamente. Nella versione portabile, trattandosi di una cartella, Windows non li crea da solo: lo script <code>Crea i collegamenti.cmd</code> ne aggiunge uno sul desktop e uno nel menu Start, con l'icona corretta. Se in seguito la cartella viene spostata, basta rieseguirlo.</p>
+
+<h2>2.6 La porta 8080</h2>
+<p>Il server locale usa la porta 8080. Se un altro programma la occupa già, Lawyers-PDF non parte. È un caso raro su un computer di studio; se dovesse capitare, si può cambiare la porta nel file <code>settings.yml</code> della cartella di configurazione creata al primo avvio.</p>
+
+<h2>2.7 Spostare la cartella, usarla da chiavetta</h2>
+<p>La cartella portabile si può spostare, copiare su un'altra macchina o portare su una chiavetta USB: non lascia tracce nel registro di sistema, salvo quelle — reversibili — create volontariamente dagli script di associazione e dei collegamenti.</p>
+
+<!-- ===================== 3 ===================== -->
+<h1>3. Aprire i PDF con un doppio clic</h1>
+<p>Per impostazione predefinita i PDF continuano ad aprirsi con il programma abituale (Acrobat, Edge, o altro). Volendo, Lawyers-PDF può diventare l'applicazione predefinita: i file mostreranno la sua icona e il doppio clic li aprirà direttamente nell'area di lavoro.</p>
+<figure class="icon">
+  <img src="assets/pdf-icon.ico" alt="Icona PDF di Lawyers-PDF">
+  <div class="figcap">Figura 2 — L'icona che i file <code>.pdf</code> assumono quando Lawyers-PDF è l'applicazione predefinita.</div>
+</figure>
+<div class="box">
+  <span class="etichetta">Con il programma di installazione</span>
+  <p>Chi ha usato l'installer ha già trovato l'opzione «Apri i file PDF con Lawyers-PDF» fra le scelte iniziali: se è stata spuntata, la registrazione descritta qui è già avvenuta e resta solo il passaggio del § 3.2. La disinstallazione rimuove tutto.</p>
+</div>
+
+<h2>3.1 Che cosa fa lo script di associazione</h2>
+<p>Eseguendo <code>Associa i PDF a Lawyers-PDF.cmd</code> il programma viene registrato presso Windows per il tipo di file <code>.pdf</code>: viene dichiarata l'icona dei documenti, il comando di apertura, e la voce «Lawyers-PDF» compare sia nell'elenco delle app predefinite sia nel menu <em>Apri con</em>.</p>
+<p>Le modifiche riguardano soltanto il profilo dell'utente corrente (non l'intero computer), non richiedono privilegi di amministratore e sono integralmente reversibili.</p>
+
+<h2>3.2 L'ultimo passaggio spetta a Windows</h2>
+<p>Nessun programma può nominarsi predefinito da solo: Windows 11 riserva la scelta all'utente. Lo script, alla fine, propone di aprire la pagina giusta delle impostazioni. Il percorso è:</p>
+<ol class="passi">
+  <li><em>Impostazioni → App → App predefinite</em></li>
+  <li>Cercare e selezionare <strong>Lawyers-PDF</strong></li>
+  <li>Alla voce <code>.pdf</code>, confermare Lawyers-PDF</li>
+</ol>
+<p>In alternativa, sul singolo file: tasto destro → <em>Apri con → Scegli un'altra app → Lawyers-PDF</em> → spuntare <em>Usa sempre questa app</em>.</p>
+<div class="box">
+  <span class="etichetta">Se si preferisce non cambiare il predefinito</span>
+  <p>La registrazione aggiunge comunque Lawyers-PDF alla voce <em>Apri con</em>. Si può quindi lasciare Acrobat come programma abituale e ricorrere a Lawyers-PDF solo quando serve.</p>
+</div>
+
+<h2>3.3 Come si comporta il programma</h2>
+<p>Il doppio clic su un PDF si comporta in modo diverso a seconda che il programma sia già aperto:</p>
+<ul>
+  <li><strong>Lawyers-PDF è già in esecuzione</strong>: il documento compare nella finestra che è già aperta. Non viene avviato un secondo programma e non si apre una seconda finestra.</li>
+  <li><strong>Lawyers-PDF è chiuso</strong>: il server parte e il documento è già caricato quando la finestra si apre.</li>
+</ul>
+<p>Selezionando più PDF insieme e premendo Invio, tutti finiscono nella stessa finestra, nell'ordine in cui sono stati passati.</p>
+
+<h2>3.4 Tornare indietro</h2>
+<p><code>Ripristina l'associazione dei PDF.cmd</code> rimuove la registrazione e la scelta memorizzata da Windows. Al primo doppio clic successivo, Windows chiederà di nuovo con quale programma aprire i PDF.</p>
+
+<!-- ===================== 4 ===================== -->
+<h1>4. L'interfaccia in cinque minuti</h1>
+
+<h2>4.1 Le tre colonne</h2>
+<p>La finestra è divisa in tre parti stabili:</p>
+<ul>
+  <li><strong>A sinistra, la libreria.</strong> I documenti caricati, con la data e un menu per ciascuno. La casella accanto al nome indica quali documenti gli strumenti prenderanno in carico.</li>
+  <li><strong>Al centro, l'area di lavoro.</strong> Cambia a seconda di ciò che si sta facendo: visualizzatore del documento, elenco dei file attivi, editor delle pagine, oppure il pannello specifico di uno strumento (come quello delle attestazioni).</li>
+  <li><strong>A destra, gli strumenti.</strong> Raggruppati per categoria; una volta scelto uno strumento, l'elenco lascia il posto alle sue impostazioni.</li>
+</ul>
+
+<h2>4.2 Portare dentro i documenti</h2>
+<p>Tre strade, equivalenti: il pulsante <em>Carica dal computer</em>; il trascinamento dei file nella finestra; il doppio clic su un PDF, se si è impostata l'associazione (capitolo 3).</p>
+
+<h2>4.3 Visualizzatore, file attivi, editor delle pagine</h2>
+<p>In alto, al centro, le schede permettono di passare dal <em>Visualizzatore</em> (il documento come apparirà) all'elenco dei <em>File attivi</em>. L'editor delle pagine — le miniature che si possono ruotare, spostare o eliminare trascinandole — si raggiunge dalle icone della barra verticale a sinistra.</p>
+
+<h2>4.4 La ricerca rapida</h2>
+<p>Con <strong>Ctrl+K</strong> si apre una casella che cerca fra strumenti, file e impostazioni. È il modo più rapido per raggiungere una funzione senza scorrere l'elenco.</p>
+
+<h2>4.5 Applicare uno strumento e riprendersi il risultato</h2>
+<p>Lo schema è sempre lo stesso: si seleziona il documento nella libreria, si sceglie lo strumento, si compilano le impostazioni, si preme il pulsante di conferma in fondo al pannello. Il risultato sostituisce il documento nell'area di lavoro; da lì si scarica con il menu del file (i tre puntini) oppure con il pulsante di download che compare al termine dell'operazione.</p>
+<div class="box amber">
+  <span class="etichetta">Attenzione</span>
+  <p>Il risultato di uno strumento non viene salvato da solo sul disco: resta nell'area di lavoro finché non lo si scarica. Chiudendo il programma senza scaricare, il lavoro resta comunque nella libreria alla riapertura, ma è buona regola scaricare subito ciò che serve.</p>
+</div>
+
+<h2>4.6 I file restano da una sessione all'altra</h2>
+<p>I documenti caricati restano nella libreria anche dopo la chiusura, perché sono conservati nella memoria locale del browser. Vanno rimossi a mano quando non servono più — operazione consigliabile quando si è lavorato su documenti riservati e il computer è condiviso.</p>
+
+<!-- ===================== 5 ===================== -->
+<h1>5. Le attestazioni di conformità</h1>
+
+<h2>5.1 A che cosa serve</h2>
+<p>È la funzione scritta appositamente per lo studio. Compone il testo di un'attestazione di conformità, secondo il modello scelto e i dati inseriti, e lo aggiunge come pagina al documento (o ai documenti) cui si riferisce.</p>
+<p>Il risultato è un unico PDF: prima gli atti, in fondo l'attestazione che li richiama uno per uno in un elenco numerato. Resta poi da firmarlo digitalmente — l'attestazione, per valere, dev'essere sottoscritta (capitolo 6).</p>
+<figure>
+  <img src="assets/fig-attestazioni.png" alt="Strumento delle attestazioni">
+  <div class="figcap">Figura 3 — Lo strumento delle attestazioni. A sinistra i campi da compilare, con in alto il difensore firmatario; al centro l'anteprima della pagina A4 (modificabile); a destra la scelta del modello e il pulsante di generazione.</div>
+</figure>
+
+<h2>5.2 La prima volta: la rubrica dei difensori</h2>
+<p>In cima ai campi da compilare c'è la sezione <strong>Difensore firmatario</strong>. Alla prima attestazione conviene aprirla e inserire i propri dati con <em>Modifica dati</em>: nome e cognome, codice fiscale, foro di appartenenza, indirizzo dello studio, PEC e luogo (quello che comparirà accanto alla data, in calce). Questi dati compaiono nell'intestazione e nella sottoscrizione di ogni attestazione.</p>
+<div class="box">
+  <span class="etichetta">Studi con più avvocati</span>
+  <p>Il menu «Firma l'attestazione» è una vera <strong>rubrica</strong>: con <em>Aggiungi</em> si registrano più difensori, e per ogni attestazione si sceglie chi la sottoscrive. È il caso della segretaria che predispone attestazioni per più professionisti dello studio: seleziona il difensore giusto dal menu, e l'intestazione, la firma e l'anteprima si adeguano da sole. Con <em>Elimina difensore</em> si rimuove un nominativo non più utile.</p>
+</div>
+<p>I dati si inseriscono una volta sola e restano memorizzati <strong>soltanto su questo computer</strong>, nella memoria locale del programma: non vengono trasmessi né inclusi nel programma distribuito. Un'installazione appena fatta parte quindi con la rubrica vuota, da compilare.</p>
+
+<h2>5.3 I modelli disponibili</h2>
+<p>I modelli inclusi sono dieci, raggruppati per materia. La tabella li elenca con il riferimento normativo e l'ipotesi tipica d'uso.</p>
+<table>
+  <thead><tr><th>Modello</th><th>Riferimento</th><th>Quando si usa</th></tr></thead>
+  <tbody>
+    <tr><td class="w">Copie da fascicolo informatico o comunicazioni telematiche</td><td class="w">art. 196-octies disp. att. c.p.c.</td><td class="w">Copie di atti e provvedimenti estratte dal fascicolo informatico, o contenute nelle comunicazioni telematiche di cancelleria o dell'UNEP.</td></tr>
+    <tr><td class="w">Deposito telematico di copia di atto analogico</td><td class="w">art. 196-novies, co. 1</td><td class="w">Copia informatica, anche per immagine, di un atto formato su supporto analogico che il difensore detiene in originale o in copia conforme.</td></tr>
+    <tr><td class="w">Espropriazione forzata — iscrizione a ruolo</td><td class="w">art. 196-novies, co. 2</td><td class="w">Iscrizione a ruolo dell'espropriazione forzata: artt. 518 co. 6, 543 co. 4, 557 co. 2 c.p.c.</td></tr>
+    <tr><td class="w">Trasmissione all'ufficiale giudiziario</td><td class="w">art. 196-decies</td><td class="w">Copie trasmesse all'ufficiale giudiziario per la notificazione o per l'esecuzione.</td></tr>
+    <tr><td class="w">Richiesta di notificazione</td><td class="w">art. 137, ult. co., c.p.c.</td><td class="w">Richiesta all'ufficiale giudiziario, preceduta dalla dichiarazione sul numero dei destinatari.</td></tr>
+    <tr><td class="w">Processo tributario telematico</td><td class="w">art. 25-bis d.lgs. 546/1992 · art. 72 d.lgs. 175/2024</td><td class="w">Attestazione nel processo tributario. Il riferimento normativo è scelto automaticamente in base alla data (§ 5.9).</td></tr>
+    <tr><td class="w">Processo penale telematico</td><td class="w">art. 111-ter c.p.p.</td><td class="w">Copie e attestazioni nel procedimento penale.</td></tr>
+    <tr><td class="w">Copia informatica di documento analogico</td><td class="w">art. 22 d.lgs. 82/2005 (CAD)</td><td class="w">Copia informatica di un documento cartaceo, fuori dallo specifico regime processuale.</td></tr>
+    <tr><td class="w">Duplicato informatico</td><td class="w">art. 23-bis, co. 1, CAD</td><td class="w">Dichiarazione di deposito di duplicato informatico (stessa sequenza di bit dell'originale).</td></tr>
+    <tr><td class="w">Copia analogica di documento informatico</td><td class="w">art. 23 CAD</td><td class="w">Copia su carta di un documento informatico.</td></tr>
+  </tbody>
+</table>
+
+<h2>5.4 Procedura passo passo</h2>
+<ol class="passi">
+  <li><strong>Caricare i documenti</strong> nell'ordine in cui devono comparire. L'ordine è quello dell'elenco numerato nell'attestazione e delle pagine nel PDF finale; se serve, lo si sistema poi nel pannello <em>Unisci</em> (§ 5.5).</li>
+  <li><strong>Selezionarli</strong> nella libreria spuntando la casella accanto al nome, e aprire <em>Attestazioni di conformità</em> nella sezione FIRMA dell'elenco strumenti.</li>
+  <li><strong>Scegliere il difensore firmatario</strong> e <strong>il modello</strong>. Il testo nell'anteprima cambia immediatamente.</li>
+  <li><strong>Compilare i dati</strong>: parte assistita, ufficio giudiziario, numero di ruolo, ed eventuali note finali. I campi variano da modello a modello; quelli non compilati lasciano il segnaposto vuoto, quindi è bene rileggere l'anteprima.</li>
+  <li><strong>Descrivere i documenti</strong> (facoltativo). Per ciascun file c'è un campo in cui indicare che cosa contiene: «sentenza n. 1242/2016 del Tribunale di Nola», per esempio. La descrizione compare accanto al nome nell'elenco numerato.</li>
+  <li><strong>Controllare la data.</strong> Il campo vuoto significa «data odierna al momento della generazione». Si può indicarne una diversa quando l'attestazione va datata a un giorno preciso.</li>
+  <li><strong>Rileggere l'anteprima</strong>, al centro. È modificabile: si può correggere direttamente lì una parola, senza toccare il modello.</li>
+  <li><strong>Premere «Genera attestazione».</strong> Il programma compone la pagina e la unisce ai documenti.</li>
+  <li><strong>Scaricare</strong> il risultato e <strong>firmarlo digitalmente</strong> (capitolo 6).</li>
+</ol>
+
+<h2>5.5 Più documenti in una sola attestazione</h2>
+<p>Selezionando più file, il comportamento predefinito è quello che serve nella maggior parte dei casi: i documenti vengono uniti in un unico PDF con una sola attestazione finale, che li elenca numerati nell'ordine di unione.</p>
+<p>L'ordine si controlla dal pannello dello strumento <em>Unisci</em>, dove i documenti compaiono in un <strong>elenco numerato</strong>: le frecce su/giù lo cambiano a mano, oppure si ordina automaticamente per nome o per data. È lo stesso ordine con cui l'attestazione li richiama. Disattivando l'unione, ciascun documento riceve invece la propria attestazione separata: utile quando gli atti vanno depositati come file distinti.</p>
+<div class="box amber">
+  <span class="etichetta">Firme digitali già presenti</span>
+  <p>L'unione non rimuove le firme digitali dei documenti di partenza. Va però tenuto presente che unire più PDF firmati in un unico file rende quelle firme non più verificabili sul file risultante, perché ciascuna si riferisce al proprio documento originale: è una conseguenza del funzionamento della firma, non del programma. Quando la verificabilità delle singole firme è essenziale, si disattiva l'unione.</p>
+</div>
+
+<h2>5.6 Rilevare ufficio e numero di ruolo dal documento</h2>
+<p>Il pulsante <em>Rileva ufficio e R.G. dal documento</em> analizza il testo del primo documento selezionato e, se li riconosce, compila i campi corrispondenti. Funziona sui PDF che contengono testo; su una scansione senza OCR non trova nulla e lo dichiara. In tal caso si può prima passare lo strumento OCR (§ 7.1) e riprovare.</p>
+
+<h2>5.7 Posizione e dimensione del testo</h2>
+<p>Due opzioni in fondo al pannello dei dati:</p>
+<ul>
+  <li><strong>Posizione</strong>: l'attestazione può essere aggiunta in coda (impostazione normale, perché l'attestazione segue gli atti cui si riferisce) o in testa.</li>
+  <li><strong>Dimensione carattere</strong>: si riduce quando il testo, con molti documenti elencati, eccede la pagina. Il programma impagina su più pagine se necessario.</li>
+</ul>
+
+<h2>5.8 Modificare i modelli e i segnaposto</h2>
+<p>Il pulsante <em>Modelli</em> apre l'editor: si può cambiare titolo e testo dei modelli inclusi — con <em>Ripristina originale</em> per tornare indietro — e crearne di nuovi.</p>
+<p>Nel testo si usano segnaposto fra doppie graffe, che vengono sostituiti al momento della generazione:</p>
+<table>
+  <thead><tr><th>Segnaposto</th><th>Contenuto</th></tr></thead>
+  <tbody>
+    <tr><td>{{difensore}}</td><td class="w">Nome e cognome dal difensore firmatario</td></tr>
+    <tr><td>{{codiceFiscale}}</td><td class="w">Codice fiscale del difensore</td></tr>
+    <tr><td>{{foro}}</td><td class="w">Foro di appartenenza</td></tr>
+    <tr><td>{{studio}}</td><td class="w">Indirizzo dello studio</td></tr>
+    <tr><td>{{pec}}</td><td class="w">Indirizzo PEC</td></tr>
+    <tr><td>{{luogo}}</td><td class="w">Luogo della sottoscrizione</td></tr>
+    <tr><td>{{data}}</td><td class="w">Data dell'attestazione</td></tr>
+    <tr><td>{{elencoAtti}}</td><td class="w">L'elenco numerato dei documenti, con le descrizioni</td></tr>
+    <tr><td>{{parte}} {{ufficio}} {{rg}} {{destinatari}} {{note}}</td><td class="w">I campi compilati nel pannello, secondo il modello</td></tr>
+  </tbody>
+</table>
+
+<h2>5.9 Il caso del processo tributario</h2>
+<p>Il modello tributario contiene una particolarità: il riferimento normativo non è fisso. Fino al 31 dicembre 2026 il testo richiama l'art. 25-bis d.lgs. 546/1992; per le attestazioni datate successivamente, l'art. 72 d.lgs. 175/2024. La scelta avviene automaticamente in base alla data dell'attestazione — quella indicata nel campo apposito, o la data odierna se lasciato vuoto.</p>
+
+<h2>5.10 Che cosa fa il programma e che cosa resta al difensore</h2>
+<div class="box resp">
+  <span class="etichetta">Responsabilità</span>
+  <p>I modelli sono un punto di partenza redazionale, non un parere. Il programma compone un testo e lo unisce a dei file: non verifica che il documento allegato sia davvero quello che l'attestazione descrive, non controlla la corrispondenza con il fascicolo informatico, non sa se la copia sia conforme. La conformità è attestata dal difensore che sottoscrive, e la responsabilità — anche penale — resta integralmente sua.</p>
+</div>
+
+<h2>5.11 Dopo la generazione: firmare</h2>
+<p>Un'attestazione non sottoscritta non attesta nulla. Il PDF generato va firmato digitalmente. Sul punto — quale firma, con quale strumento e con quali cautele per il deposito telematico — si veda il capitolo che segue, e in particolare il § 6.5.</p>
+
+<!-- ===================== 6 ===================== -->
+<h1>6. Firme e marche temporali</h1>
+
+<h2>6.1 Tre cose diverse che si chiamano "firma"</h2>
+<p>Nell'elenco degli strumenti compaiono più voci che parlano di firma. Non sono varianti della stessa cosa: sono operazioni giuridicamente diverse, ed è essenziale non confonderle.</p>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa tecnicamente</th><th>Che valore ha</th></tr></thead>
+  <tbody>
+    <tr><td class="w">Firma</td><td class="w">Disegna sul documento un'immagine: una firma tracciata col mouse, digitata, o caricata da file.</td><td class="w">Nessun valore di firma elettronica qualificata. È un disegno.</td></tr>
+    <tr><td class="w">Aggiungi timbro al PDF</td><td class="w">Sovrappone un'immagine o un testo (un timbro, un logo, una dicitura).</td><td class="w">Come sopra: elemento grafico.</td></tr>
+    <tr><td class="w">Firma con certificato</td><td class="w">Appone una firma digitale crittografica, con un certificato da file o da dispositivo.</td><td class="w">Firma elettronica: il valore dipende dal certificato e dal dispositivo usati (§ 6.3-6.5).</td></tr>
+    <tr><td class="w">Marca temporale PDF</td><td class="w">Aggiunge una marca temporale RFC 3161 rilasciata da un'autorità di marcatura.</td><td class="w">Data certa, con i limiti del § 6.8.</td></tr>
+  </tbody>
+</table>
+
+<h2>6.2 La firma disegnata e il timbro: che cosa valgono</h2>
+<p>Vale la pena di essere espliciti, perché l'equivoco è frequente e le conseguenze sono serie: <strong>una firma disegnata sul PDF non è una firma digitale</strong>. È un'immagine sovrapposta al documento. Chiunque può ritagliarla e incollarla altrove; non garantisce chi ha firmato, né che il documento non sia stato modificato dopo.</p>
+<p>Ciò non significa che sia inutile. Va bene per una copia di cortesia, per un documento interno, per dare al destinatario l'aspetto consueto di un atto sottoscritto quando la sottoscrizione giuridicamente rilevante è altrove. Non va bene per nulla che debba valere come firma.</p>
+
+<h2>6.3 La firma con certificato</h2>
+<p>È la firma digitale vera e propria: il documento viene sottoposto a un'operazione crittografica con la chiave privata del firmatario, e chiunque può verificarne l'integrità e la provenienza.</p>
+<p>Lawyers-PDF accetta il certificato in quattro forme:</p>
+<table>
+  <thead><tr><th>Formato</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td>PKCS#12 (.p12, .pfx)</td><td class="w">Il formato più comune per i certificati esportabili su file. Richiede la password del contenitore.</td></tr>
+    <tr><td>PEM</td><td class="w">Due file separati: certificato e chiave privata.</td></tr>
+    <tr><td>JKS</td><td class="w">Contenitore Java, raro fuori da contesti tecnici.</td></tr>
+    <tr><td>PKCS#11</td><td class="w">Dispositivo fisico: business key, smart card, token USB (§ 6.4).</td></tr>
+  </tbody>
+</table>
+<p>Oltre al certificato si possono indicare: l'alias (quando il contenitore ospita più certificati), il motivo della firma, il luogo, il nome del firmatario, se mostrare o no la firma visibile e su quale pagina.</p>
+<figure>
+  <img src="assets/fig-cert.png" alt="Firma con certificato">
+  <div class="figcap">Figura 4 — Il pannello della firma con certificato.</div>
+</figure>
+
+<h2>6.4 La firma con business key o smart card</h2>
+<p>È il caso più frequente per l'avvocato: il certificato di firma qualificata risiede su un dispositivo (chiavetta o smart card) rilasciato da un prestatore di servizi fiduciari, e non è esportabile — è proprio questo che lo rende qualificato. Lawyers-PDF può usarlo in due modi:</p>
+<ul>
+  <li><strong>Archivio certificati di Windows</strong>: se il dispositivo installa i propri certificati nell'archivio di sistema, il programma li elenca e permette di sceglierne uno.</li>
+  <li><strong>PKCS#11</strong>: indicando il percorso della libreria del produttore (il file <code>.dll</code> fornito con il dispositivo) e lo slot, il programma dialoga direttamente con il token. Il PIN si inserisce al momento della firma.</li>
+</ul>
+<div class="box">
+  <span class="etichetta">Perché queste opzioni compaiono solo qui</span>
+  <p>La firma con dispositivo funziona perché il programma gira sul computer dell'utente, accanto al lettore di smart card. È una funzione disponibile nell'edizione locale come questa; in un'installazione su server remoto sarebbe disattivata, e giustamente.</p>
+</div>
+
+<h2>6.5 Il formato prodotto, e perché conta per il deposito</h2>
+<p>Questo paragrafo merita attenzione, perché riguarda un punto in cui è facile sbagliare. La firma apposta da Lawyers-PDF è una firma PDF nella forma classica (<code>adbe.pkcs7.detached</code>): quella storicamente introdotta da Adobe, riconosciuta da Acrobat e dai lettori PDF, corrispondente al profilo PAdES basic (ETSI TS 102 778-2). Non dichiara il sotto-filtro <code>ETSI.CAdES.detached</code>, proprio del profilo PAdES-BES.</p>
+<div class="box amber">
+  <span class="etichetta">Per i depositi telematici</span>
+  <p>Le specifiche tecniche del processo civile telematico richiedono che gli atti siano sottoscritti in formato CAdES (il file <code>.p7m</code>) oppure PAdES-BES. La firma prodotta da questo programma, pur essendo crittograficamente valida e verificabile, non dichiara il profilo PAdES-BES: <strong>per il deposito, si continui a usare il software di firma del proprio prestatore</strong> (Dike, ArubaSign, FirmaCerta e simili). La firma di Lawyers-PDF resta pienamente utile per tutto il resto: copie di cortesia, corrispondenza, documenti contrattuali fra parti che non richiedano quel profilo, archiviazione interna con garanzia di integrità.</p>
+</div>
+
+<h2>6.6 Convalidare una firma</h2>
+<p>Lo strumento <em>Convalida la firma PDF</em> esamina un documento firmato e riferisce che cosa contiene: chi ha firmato, quando, con quale certificato, se il documento è stato modificato dopo la firma. È utile per controllare un atto ricevuto dalla controparte o dalla cancelleria.</p>
+<figure>
+  <img src="assets/fig-convalida.png" alt="Convalida della firma">
+  <div class="figcap">Figura 5 — La convalida della firma.</div>
+</figure>
+<div class="box">
+  <span class="etichetta">Che cosa la convalida non dice</span>
+  <p>La verifica riguarda l'integrità del documento e i dati del certificato. Non equivale a una verifica completa presso gli elenchi di fiducia europei (la Trusted List): per un accertamento formale sulla qualificazione del certificato restano gli strumenti istituzionali, come il validatore dell'AgID o quello della Commissione europea.</p>
+</div>
+
+<h2>6.7 Rimuovere una firma</h2>
+<p><em>Rimuovi firma digitale</em> elimina le firme presenti in un PDF. Serve, in pratica, quando si deve rielaborare un documento firmato (per esempio estrarne alcune pagine): l'operazione sarebbe comunque impossibile mantenendo la firma valida. La rimozione è ovviamente definitiva sul file risultante: l'originale firmato va conservato a parte.</p>
+
+<h2>6.8 La marca temporale</h2>
+<p>La marca temporale attribuisce al documento una data opponibile: un'autorità di marcatura (Time Stamp Authority) certifica che quel documento esisteva in quel momento. Tecnicamente, Lawyers-PDF calcola l'impronta SHA-256 del documento, la invia all'autorità scelta secondo il protocollo RFC 3161, e incorpora nel PDF la marca ricevuta come document timestamp (<code>/Type /DocTimeStamp</code>, sotto-filtro <code>ETSI.RFC3161</code>): il formato corretto, quello previsto dagli standard PAdES.</p>
+<p><strong>Il documento non viene inviato</strong>: parte soltanto la sua impronta numerica, dalla quale il contenuto non è ricostruibile. È la ragione per cui l'operazione, pur richiedendo la rete, non incrina la riservatezza dell'atto.</p>
+<figure>
+  <img src="assets/fig-marca.png" alt="Marca temporale">
+  <div class="figcap">Figura 6 — Lo strumento della marca temporale, con l'elenco dei servizi preconfigurati.</div>
+</figure>
+<p>I servizi preconfigurati sono cinque: DigiCert, Sectigo, SSL.com, FreeTSA e MeSign.</p>
+<div class="box amber">
+  <span class="etichetta">Gratuiti, ma non qualificati — il punto giuridico</span>
+  <p>Questi servizi sono gratuiti e tecnicamente solidi: usano SHA-256, un algoritmo di hash robusto e attuale, e producono marche conformi all'RFC 3161. Non sono però prestatori di servizi fiduciari qualificati ai sensi del regolamento eIDAS: non figurano, per il servizio di marcatura, negli elenchi di fiducia degli Stati membri. La conseguenza è precisa. La validazione temporale elettronica qualificata gode, ai sensi dell'art. 41 eIDAS, della presunzione di accuratezza della data e ora e di integrità dei dati. Una marca non qualificata non gode di quella presunzione: l'art. 41, paragrafo 1, esclude che le si possano negare effetti giuridici e ammissibilità come prova per il solo fatto di non essere qualificata, ma il suo valore resta rimesso al libero apprezzamento del giudice.</p>
+  <p>In pratica: per dare data certa a un documento nell'interesse dello studio, per documentare quando una bozza è stata chiusa, per l'archiviazione interna, la marca gratuita è più che sufficiente. Quando la data certa costituisce un elemento della fattispecie — un termine, una decadenza, un'anteriorità da opporre a un terzo — occorre una marca temporale qualificata, acquistata da un prestatore qualificato (in Italia, Aruba, Infocert, Namirial e gli altri iscritti nell'elenco AgID).</p>
+</div>
+
+<h2>6.9 L'ordine giusto delle operazioni</h2>
+<p>Quando si devono fare più cose sullo stesso documento, l'ordine non è indifferente:</p>
+<ol class="passi">
+  <li><strong>Prima si completa il documento</strong>: unione, attestazione, numerazione, oscuramenti. Ogni modifica successiva alla firma la invaliderebbe.</li>
+  <li><strong>Poi si firma.</strong></li>
+  <li><strong>Infine si marca temporalmente.</strong> La marca aggiunta dopo la firma attesta che la firma esisteva già a quella data — che è il motivo per cui la si appone.</li>
+</ol>
+
+<!-- ===================== 7 ===================== -->
+<h1>7. Gli altri strumenti</h1>
+<p>Segue una rassegna per categorie. Gli strumenti sono molti; qui interessa soprattutto sapere che cosa esiste, per ritrovarlo al momento del bisogno con <strong>Ctrl+K</strong>.</p>
+
+<h2>7.1 Lavorare sul testo e sul contenuto</h2>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa</th></tr></thead>
+  <tbody>
+    <tr><td>Unisci</td><td class="w">Accorpa più PDF in uno solo. Nel pannello un elenco numerato mostra l'ordine di unione: le frecce su/giù lo cambiano a mano, oppure si ordina per nome o data. È lo strumento del fascicolo di parte.</td></tr>
+    <tr><td>Dividi</td><td class="w">Separa un PDF in più file: per pagine, per intervalli, per dimensione.</td></tr>
+    <tr><td>Comprimi</td><td class="w">Riduce il peso del file. Utile quando il deposito o la PEC impongono un limite.</td></tr>
+    <tr><td>Converti</td><td class="w">Da e verso altri formati. Funzionano sempre immagini (PNG, JPG, TIFF…​), testo semplice, CSV. Richiedono invece LibreOffice installato le conversioni verso Word, RTF, presentazioni, HTML, XML e PDF/A.</td></tr>
+    <tr><td>OCR / Pulisci scansioni</td><td class="w">Riconosce il testo delle scansioni e lo rende ricercabile e copiabile. Richiede il motore esterno OCRmyPDF/Tesseract: se non è installato, la voce resta in grigio (§ 9).</td></tr>
+    <tr><td>Compara</td><td class="w">Confronta due PDF e mostra le differenze: due versioni di un contratto, per esempio.</td></tr>
+    <tr><td>Redazione manuale</td><td class="w">Oscura porzioni di testo. Va usato con l'accortezza del § 8.3.</td></tr>
+    <tr><td>Aggiungi testo / immagine / Annota</td><td class="w">Inserisce testo, immagini o annotazioni sulle pagine.</td></tr>
+    <tr><td>Compila modulo</td><td class="w">Compila i campi dei PDF modulistici.</td></tr>
+  </tbody>
+</table>
+
+<h2>7.2 Sicurezza dei documenti</h2>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa</th></tr></thead>
+  <tbody>
+    <tr><td>Aggiungi / Rimuovi Password</td><td class="w">Protegge il file con una password di apertura, o la toglie (conoscendola).</td></tr>
+    <tr><td>Cambia Permessi</td><td class="w">Limita stampa, copia, modifica. Sono vincoli deboli, che qualunque programma può ignorare: non sostituiscono la password.</td></tr>
+    <tr><td>Aggiungi Filigrana</td><td class="w">Sovrappone una scritta ripetuta ("copia", "bozza", il nome del destinatario).</td></tr>
+    <tr><td>Sanitizza</td><td class="w">Rimuove JavaScript, azioni automatiche e contenuti attivi. Consigliato sui PDF di provenienza ignota.</td></tr>
+    <tr><td>Appiattisci</td><td class="w">Trasforma moduli e annotazioni in contenuto fisso, non più modificabile.</td></tr>
+    <tr><td>Sblocca moduli PDF</td><td class="w">Riabilita la compilazione dei campi bloccati.</td></tr>
+  </tbody>
+</table>
+
+<h2>7.3 Verifica e revisione</h2>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa</th></tr></thead>
+  <tbody>
+    <tr><td>Info complete sul PDF</td><td class="w">Mostra tutto ciò che il file contiene: metadati, autore, date, software di produzione, firme, allegati. Utile per capire la provenienza di un documento ricevuto.</td></tr>
+    <tr><td>Convalida la firma PDF</td><td class="w">§ 6.6.</td></tr>
+    <tr><td>Modifica Proprietà</td><td class="w">Cambia titolo, autore, oggetto e parole chiave. Serve anche a ripulire i metadati prima di trasmettere un file.</td></tr>
+    <tr><td>Modifica indice</td><td class="w">Costruisce o corregge i segnalibri: un fascicolo voluminoso diventa navigabile.</td></tr>
+    <tr><td>Leggi</td><td class="w">Lettura a schermo intero del documento.</td></tr>
+  </tbody>
+</table>
+
+<h2>7.4 Pagine: formato, ordine, numerazione</h2>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa</th></tr></thead>
+  <tbody>
+    <tr><td>Ruota / Rotazione automatica</td><td class="w">Raddrizza le pagine; la versione automatica riconosce l'orientamento del testo.</td></tr>
+    <tr><td>Riorganizza pagine</td><td class="w">Sposta, duplica, elimina pagine trascinandole.</td></tr>
+    <tr><td>Ritaglia</td><td class="w">Elimina i margini o porzioni di pagina.</td></tr>
+    <tr><td>Ridimensiona pagine</td><td class="w">Uniforma i formati (A4, Letter) in un documento eterogeneo.</td></tr>
+    <tr><td>Aggiungi numeri di pagina</td><td class="w">Numera le pagine, con posizione e formato a scelta. Utile per la numerazione progressiva del fascicolo.</td></tr>
+    <tr><td>Layout multipagina / Imposizione a libretto</td><td class="w">Più pagine per foglio; impaginazione a libretto per la stampa.</td></tr>
+    <tr><td>PDF in unica pagina grande</td><td class="w">Riversa l'intero documento in una sola pagina continua.</td></tr>
+    <tr><td>Allega file</td><td class="w">Incorpora allegati nel PDF.</td></tr>
+  </tbody>
+</table>
+<figure>
+  <img src="assets/fig-pagine.png" alt="Numerazione delle pagine">
+  <div class="figcap">Figura 7 — La numerazione delle pagine, con posizione e formato configurabili.</div>
+</figure>
+
+<h2>7.5 Estrazione e rimozione</h2>
+<table>
+  <thead><tr><th>Strumento</th><th>Che cosa fa</th></tr></thead>
+  <tbody>
+    <tr><td>Estrai pagine</td><td class="w">Ricava un nuovo PDF da un intervallo di pagine.</td></tr>
+    <tr><td>Estrai immagini</td><td class="w">Salva separatamente le immagini contenute nel documento.</td></tr>
+    <tr><td>Rimuovi pagine / vuote / immagini / annotazioni</td><td class="w">Alleggerisce o ripulisce il documento.</td></tr>
+    <tr><td>Rimuovi firma digitale</td><td class="w">§ 6.7.</td></tr>
+  </tbody>
+</table>
+
+<h2>7.6 Automazione</h2>
+<p>Due strumenti per il lavoro ripetitivo:</p>
+<ul>
+  <li><strong>Rinomina automatica file PDF</strong>: ricava il nome del file dal contenuto del documento.</li>
+  <li><strong>Automatizza</strong>: costruisce una sequenza di operazioni («comprimi, poi numera, poi unisci») da applicare in blocco. Le sequenze si salvano e si riusano.</li>
+</ul>
+
+<h2>7.7 Strumenti avanzati e per sviluppatori</h2>
+<p>Completano l'elenco alcune funzioni tecniche: regolazione di colori e contrasto, riparazione di file danneggiati, riconoscimento e separazione di più foto in una singola scansione, sovrapposizione di PDF, sostituzione dei colori, effetto scanner (per dare a un PDF nativo l'aspetto di una copia acquisita). La sezione per sviluppatori espone la documentazione delle API e alcune impostazioni di sistema: non serve all'uso quotidiano.</p>
+
+<!-- ===================== 8 ===================== -->
+<h1>8. Ricette per lo studio</h1>
+<div class="box">
+  <span class="etichetta">8.1 Copie conformi per il deposito telematico</span>
+  <p>Caricare gli atti nell'ordine voluto → selezionarli tutti → <em>Attestazioni di conformità</em> → scegliere il difensore firmatario → modello art. 196-octies (o quello pertinente) → compilare parte, ufficio, R.G. → descrivere i documenti → <em>Genera attestazione</em> → scaricare → firmare con il software del proprio prestatore (§ 6.5) → depositare.</p>
+</div>
+<div class="box">
+  <span class="etichetta">8.2 Un fascicolo di parte unico e navigabile</span>
+  <p><em>Unisci</em> i documenti nell'ordine dell'indice (regolandolo con le frecce nel pannello) → <em>Aggiungi numeri di pagina</em> per la numerazione progressiva → <em>Modifica indice</em> per creare i segnalibri con il nome di ciascun documento.</p>
+</div>
+<div class="box">
+  <span class="etichetta">8.3 Oscurare dati prima di trasmettere un documento</span>
+  <p><em>Redazione manuale</em> per coprire le porzioni riservate → <em>Appiattisci</em> per rendere l'oscuramento definitivo → <em>Modifica Proprietà</em> per ripulire i metadati → controllare il risultato con <em>Info complete sul PDF</em>. Il secondo passaggio non è facoltativo: un rettangolo nero sovrapposto, senza appiattimento, può lasciare sotto di sé il testo originale, recuperabile con un semplice copia-incolla. È un incidente documentato in casi celebri, e in materia di dati personali costa caro.</p>
+</div>
+<div class="box">
+  <span class="etichetta">8.4 Una scansione che pesa troppo per la PEC</span>
+  <p><em>OCR</em> (se serve il testo ricercabile) → <em>Comprimi</em> scegliendo il livello → verificare la leggibilità nel visualizzatore prima di inviare.</p>
+</div>
+<div class="box">
+  <span class="etichetta">8.5 Dare data certa a una bozza</span>
+  <p>Scaricare il documento definitivo → <em>Marca temporale PDF</em> → scegliere il servizio → applicare. Per uso interno la marca gratuita basta; se la data deve reggere in giudizio contro un terzo, si veda l'avvertenza del § 6.8.</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<h1>9. Se qualcosa non va</h1>
+<table>
+  <thead><tr><th>Sintomo</th><th>Che cosa fare</th></tr></thead>
+  <tbody>
+    <tr><td class="w">Il programma non parte, o la finestra non si apre</td><td class="w">Un'altra applicazione occupa la porta 8080. Eseguire <code>Arresta Lawyers-PDF.cmd</code> e riavviare. (Riavviare il programma mentre è già attivo in secondo piano è invece innocuo: riporta semplicemente in primo piano la finestra esistente.)</td></tr>
+    <tr><td class="w">Windows avvisa che l'editore è sconosciuto</td><td class="w">Normale: l'eseguibile non è firmato (§ 2.2).</td></tr>
+    <tr><td class="w">Il doppio clic su un PDF non lo apre in Lawyers-PDF</td><td class="w">L'associazione è registrata ma non ancora scelta come predefinita: § 3.2.</td></tr>
+    <tr><td class="w">I file PDF mostrano ancora la vecchia icona</td><td class="w">Windows conserva una cache delle icone. Rieseguire lo script di associazione, che la svuota, oppure riavviare Esplora file.</td></tr>
+    <tr><td class="w">Fra i formati di conversione non compaiono Word, RTF o PDF/A</td><td class="w">Servono programmi esterni non inclusi: LibreOffice per i formati Office e Ghostscript per PDF/A. Installandoli, i formati compaiono da soli al riavvio.</td></tr>
+    <tr><td class="w">La voce «OCR / Pulisci scansioni» è in grigio</td><td class="w">Il motore di riconoscimento (OCRmyPDF/Tesseract) non è installato. Il resto del programma funziona ugualmente: è l'unico strumento che dipende da un componente esterno.</td></tr>
+    <tr><td class="w">«Rileva ufficio e R.G.» non trova nulla</td><td class="w">Il documento è una scansione senza testo: passare prima l'OCR (§ 7.1).</td></tr>
+    <tr><td class="w">La marca temporale non viene applicata</td><td class="w">Serve la connessione a internet, e il servizio scelto può essere temporaneamente irraggiungibile: provarne un altro fra i cinque.</td></tr>
+    <tr><td class="w">Il token di firma non compare</td><td class="w">Verificare che il dispositivo sia inserito e che il middleware del produttore sia installato; per il PKCS#11 occorre indicare il percorso esatto della libreria.</td></tr>
+    <tr><td class="w">Un'operazione su un file molto grande sembra bloccata</td><td class="w">OCR e compressione su documenti di centinaia di pagine richiedono minuti. Il programma mostra l'avanzamento.</td></tr>
+  </tbody>
+</table>
+
+<!-- ===================== 10 ===================== -->
+<h1>10. Licenza, marchi e responsabilità</h1>
+<p>Lawyers-PDF è un'opera derivata da Stirling PDF, distribuita con licenza MIT. Il testo integrale della licenza, con l'avviso di copyright originale, è nel file <code>LICENZA.txt</code> della cartella del programma.</p>
+<p>La licenza MIT consente di usare, copiare, modificare e ridistribuire il software; impone di conservare l'avviso di copyright e la licenza in ogni copia. Nulla di ciò che è coperto dalla licenza proprietaria di Stirling PDF è incluso in questa versione.</p>
+<p><strong>Marchi.</strong> "Stirling PDF" è un marchio del suo titolare. Lawyers-PDF non è un prodotto di Stirling PDF Inc., non è da essa approvato né sostenuto; il riferimento all'origine del codice ha finalità di attribuzione, come la licenza richiede.</p>
+<div class="box resp">
+  <span class="etichetta">Esclusione di garanzia e responsabilità</span>
+  <p>Il software è fornito «così com'è», senza garanzia di alcun tipo, espressa o implicita, compresa — senza limitazione — la garanzia di commerciabilità, di idoneità a un fine particolare e di non violazione di diritti altrui. In nessun caso gli autori o i titolari del copyright potranno essere ritenuti responsabili per danni derivanti dall'uso del software.</p>
+  <p>L'uso è a esclusivo rischio dell'utente. In particolare, e per quanto qui più rileva: la correttezza, la completezza e la veridicità delle attestazioni di conformità, la scelta del modello appropriato, la verifica della conformità delle copie e l'osservanza delle norme sul deposito telematico restano di esclusiva responsabilità del difensore che sottoscrive. Il programma è uno strumento di redazione: non esprime pareri, non verifica documenti, non sostituisce il controllo professionale.</p>
+</div>
+
+<!-- ===================== GLOSSARIO ===================== -->
+<h1>Glossario</h1>
+<p><strong>CAdES</strong> — Formato di firma elettronica avanzata su qualunque tipo di file; nel processo civile telematico è il file con estensione <code>.p7m</code>.</p>
+<p><strong>PAdES</strong> — Formato di firma elettronica per documenti PDF, che resta un PDF leggibile. Ne esistono profili diversi: basic (la forma classica <code>adbe.pkcs7.detached</code>) e BES, che è quello richiesto dalle specifiche del processo telematico.</p>
+<p><strong>PKCS#12</strong> — Formato di file (<code>.p12</code>, <code>.pfx</code>) che racchiude certificato e chiave privata, protetto da password.</p>
+<p><strong>PKCS#11</strong> — Standard con cui un programma dialoga con un dispositivo di firma (smart card, business key) attraverso una libreria fornita dal produttore.</p>
+<p><strong>RFC 3161</strong> — Protocollo con cui si chiede e si riceve una marca temporale.</p>
+<p><strong>SHA-256</strong> — Funzione di hash: calcola dal documento un'impronta numerica di lunghezza fissa, dalla quale il documento non è ricostruibile e che cambia se il documento cambia anche di un solo carattere.</p>
+<p><strong>TSA</strong> — Time Stamp Authority: l'autorità che rilascia le marche temporali.</p>
+<p><strong>eIDAS</strong> — Regolamento (UE) n. 910/2014 sull'identificazione elettronica e i servizi fiduciari, che definisce firme e marche temporali qualificate e il loro valore probatorio.</p>
+<p><strong>localhost</strong> — L'indirizzo di rete che ogni computer riserva a sé stesso. Un servizio in ascolto su localhost non è raggiungibile dall'esterno.</p>
+<p><strong>OCR</strong> — Optical Character Recognition: il riconoscimento del testo contenuto in un'immagine o in una scansione.</p>
+
+</body>
+</html>
