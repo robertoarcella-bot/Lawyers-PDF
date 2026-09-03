@@ -53,16 +53,17 @@ export const PROFILO_VUOTO: ProfiloDifensore = {
 };
 
 /**
- * Shipped defaults for this build. They are only a starting point: the profile is editable
- * from the tool, and clearing a field simply leaves the corresponding placeholder empty.
+ * Shipped default for a fresh install: intentionally blank. This is a public build, so it must
+ * carry no one's personal data; each user fills in their own difensore once, and it is then kept
+ * locally on their machine (never in the source or the distributed binary).
  */
 export const PROFILO_PREDEFINITO: ProfiloDifensore = {
-  difensore: "Avv. Roberto Arcella",
+  difensore: "",
   codiceFiscale: "",
-  foro: "Napoli",
-  studio: "Napoli, ",
+  foro: "",
+  studio: "",
   pec: "",
-  luogo: "Napoli",
+  luogo: "",
 };
 
 function leggi<T>(chiave: string): T | null {

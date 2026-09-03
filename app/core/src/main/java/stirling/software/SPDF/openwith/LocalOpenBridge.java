@@ -61,6 +61,13 @@ public final class LocalOpenBridge {
             }
         }
         if (documents.isEmpty()) {
+            // Empty launch, no document: closing the window leaves the server up in the
+            // background, so a plain re-launch must reopen that window rather than boot a second
+            // server - the second would fail to bind the port and the launcher would report it as
+            // "Failed to launch JVM".
+            if (focusRunningInstance()) {
+                System.exit(0);
+            }
             return args;
         }
 
@@ -90,6 +97,23 @@ public final class LocalOpenBridge {
         } catch (InvalidPathException e) {
             return null;
         }
+    }
+
+    /**
+     * When a server is already listening, brings its window to the front (opening one if none is
+     * attached) and reports that this process must not boot a second server. Returns false when
+     * nothing is listening, so the first instance boots normally.
+     */
+    private static boolean focusRunningInstance() {
+        String base = "http://127.0.0.1:" + resolvePort();
+        HttpClient client = HttpClient.newBuilder().connectTimeout(PROBE_TIMEOUT).build();
+        if (!isServerListening(client, base)) {
+            return false;
+        }
+        if (!hasOpenWindow(client, base)) {
+            AppWindowLauncher.open(base + "/");
+        }
+        return true;
     }
 
     private static boolean handOverToRunningInstance(List<Path> documents) {
